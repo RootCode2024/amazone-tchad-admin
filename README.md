@@ -1,69 +1,65 @@
-Elevate your web development projects with our CoreUI Free Bootstrap Admin Template integrated seamlessly with Laravel 10. This comprehensive template brings a sophisticated and modern dashboard experience, fully utilizing Laravel's Blade engine for robust functionality and user-friendly interfaces.
+# Amazone Tchad Admin
 
-# Key Features:
+Ce projet est une application Laravel pour la gestion administrative d'Amazone Tchad.
 
-Dynamic Dashboard: Access a powerful admin dashboard that provides insights and control over your web applications.
-User Authentication Views: Enhance your projects with pre-built login, registration, forgot password, email verification, and user profile editing views.
-Responsive Design: Ensure an optimal user experience on various devices and screen sizes.
-Laravel Integration: Harness the potential of Laravel 10 for a smooth and efficient development experience.
-Get started with this template today and streamline your web development process, saving time and effort while maintaining a polished and professional appearance.
+## Prérequis
 
-# Keywords/Tags:
+Avant de commencer, assurez-vous d'avoir installé les outils suivants :
+- [PHP](https://www.php.net/) (version 8.1 ou supérieure)
+- [Composer](https://getcomposer.org/)
+- [MySQL](https://www.mysql.com/) ou tout autre SGBD compatible
+- [Git](https://git-scm.com/)
+- Une copie de Laravel installé globalement ou via Composer
 
-Laravel 10
-CoreUI Bootstrap Admin Template
-Admin Dashboard
-User Authentication
-Responsive Design
-Web Development
-Laravel Integration
-Bootstrap
-Blade Engine
-Web Application Template
-UI/UX
-Open Source
-Template Integration
-Web Development Framework
-SEO Optimization
+## Installation
 
+### 1. Cloner le projet
+Clonez le dépôt Git sur votre machine locale :
+```bash
+git clone https://github.com/votre-utilisateur/amazone-tchad-admin.git
+```
 
-# How to clone this repo for my use. 
+Accédez au répertoire du projet :
 
-1. Press the button "Use This Template". 
-2. You got a new screen where you set-up and configure your git repo as per your project and then apply the "Create Repository" Button 
+```bash
+cd amazone-tchad-admin
+```
 
-## OR
+### 2. Configuration de l'environnement
+Copiez le fichier .env.example et renommez-le en .env :
 
-clone this "CoreUi-Dashboard-With-Laravel-Starter" repo and set-up as per your need.
+```bash
+cp .env.example .env
+```
+Configurez les variables d'environnement dans le fichier .env (base de données, etc.).
 
-# How to setup or config this "CoreUi-Dashboard-With-Laravel-Starter"  
-## For windows
-        `copy .env.example .env`
-## For Mac / Linux OS
-        `cp .env.example .env`
+### 3. Installer les dépendances
 
-### Configure your .env file as per your requirements
+Installez les dépendances PHP avec Composer :
 
-This CoreUi-Dashboard-With-Laravel-Starter template has integrated user email verification by default so please configure your SMTP setting or use
-[MailTrap](https://mailtrap.io/) for setting purpose in development environment
+```bash
+composer install
+```
+### 4. Générer la clé d'application
 
-** After that, Run these commands **
+Générez une clé d'application unique :
 
-1. `composer install`
-2. `php artisan key:generate`
-3. `php artisan migrate`
+```bash
+php artisan key:generate
+```
 
-After migration, you should create a user by opening the Laravel app in your browser. After creating the user, you can log in to the Laravel app and view the Core UI Admin Dashboard with laravel integrated.
+### 5. Exécuter les migrations
 
-`npm install`
-`npm run build`
+Créez la base de données et exécutez les migrations pour préparer les tables :
 
-You can change CSS in this directory. All of the CSS files are placed here. "/resources/sass" 
-You can change javascript from this directory. All of the js files are placed here. "/resources/js"
+```bash
+php artisan migrate
+```
 
-After every change in these files you must run the `npm run build` command for compiling or create a build for css/js.
+### 6. Lancer le serveur de développement
+Démarrez le serveur de développement Laravel :
 
-
-
-# THANKS FOR USE
-
+```bash
+php artisan serve
+```
+Le projet sera accessible à l'adresse suivante : http://127.0.0.1:8000
