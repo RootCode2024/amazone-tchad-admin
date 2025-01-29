@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
+            $table->enum('type', ['one-way', 'round-trip', 'multi-destination'])->default('one-way');
             $table->string('origin');
             $table->string('destination');
             $table->date('departure_date');
             $table->date('return_date')->nullable();
             $table->integer('passengers');
-            $table->string('email');
-            $table->string('telephone');
+            $table->enum('flight_class', ['economy', 'premium', 'business'])->default('economy');
             $table->enum('status', ['pending', 'validated', 'rejected'])->default('pending');
             $table->foreignId('client_id')->constrained()->onDelete('cascade');
             $table->timestamps();

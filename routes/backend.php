@@ -14,7 +14,3 @@ Route::prefix('backend')->group(function () {
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('backend.profile.destroy');
     });
 });
-
-Route::post('/reservation', function(){
-    return 'reservation';
-})->name('reservation.store');

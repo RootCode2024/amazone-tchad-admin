@@ -15,6 +15,8 @@ class Reservation extends Model
         'departure_date',
         'return_date',
         'passengers',
+        'flight_class',
+        'type',
         'status',
     ];
 
