@@ -16,10 +16,16 @@ use App\Http\Controllers\ReservationController;
 
 
 Route::get('/', function () {
-    return view('welcome');
+    $destinations = ['NDAMENA', 'COTONOU', 'DAKAR', 'LIBREVILLE'];
+    $origins = ['NDAMENA', 'COTONOU', 'DAKAR', 'LIBREVILLE'];
+    $pickupLocations = ['cotonou', 'dakar', 'mbour'];
+    return view('welcome', compact('destinations', 'origins', 'pickupLocations'));
 });
 
-Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
+Route::post('/reservations/vol', [ReservationController::class, 'store'])->name('reservations.store.vol');
+Route::post('/reservations/hotel', [ReservationController::class, 'store'])->name('reservations.store.hotel');
+Route::post('/reservations/volhotel', [ReservationController::class, 'store'])->name('reservations.store.volhotel');
+Route::post('/reservations/carlocation', [ReservationController::class, 'store'])->name('reservations.store.location');
 
 Route::get('/admin/reservations', [ReservationController::class, 'index'])->name('reservations.index');
 Route::post('/admin/reservations/{reservation}/validate', [ReservationController::class, 'validateReservation'])->name('reservations.validate');

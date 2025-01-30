@@ -17,42 +17,49 @@ class ReservationController extends Controller
     
     public function store(Request $request)
     {
+
+
         // Valider les données de la requête avec les dates converties
         $request->validate([
             'lastname' => 'required|string|max:255',
             'firstname' => 'required|string|max:255',
             'email' => 'required|email|unique:clients,email',
-            'telephone' => 'required|string|max:20|unique:clients,telephone',
+            'phone' => 'required|string|max:20|unique:clients,phone',
             'origin' => 'required|string|max:255',
             'destination' => 'required|string|max:255',
-            'departure' => 'required',
-            'return' => 'nullable',
+            'departure' => 'required|date',
+            'return' => 'nullable|date',
             'passengers' => 'required|min:1',
             'type' => 'required|in:one-way,round-trip,multi-destination',
             'flight_class' => 'required|in:economy,premium,business',
+            'form_name' => 'required|in:vol,hotel'
         ]);
     
         // Enregistrement du client
         $client = Client::firstOrCreate([
             'email' => $request->email,
-            'phone' => $request->telephone,
+            'phone' => $request->phone,
         ], [
             'lastname' => $request->lastname,
             'firstname' => $request->firstname,
         ]);
     
-        // Enregistrement de la réservation
-        Reservation::create([
-            'client_id' => $client->id,
-            'origin' => $request->origin,
-            'destination' => $request->destination,
-            'departure_date' => $request->departure,
-            'return_date' => $request->return,
-            'passengers' => $request->passengers,
-            'status' => 'pending',
-            'type' => $request->type,
-            'flight_class' => $request->flight_class,
-        ]);
+        if ($request->form_name === 'vol')
+        {
+            // Enregistrement de la réservation
+            Reservation::create([
+                'client_id' => $client->id,
+                'origin' => $request->origin,
+                'destination' => $request->destination,
+                'departure_date' => $request->departure,
+                'return_date' => $request->return,
+                'passengers' => $request->passengers,
+                'status' => 'pending',
+                'type' => $request->type,
+                'flight_class' => $request->flight_class,
+            ]);
+        }
+        
     
         return back()->with('success', 'Votre réservation a été enregistrée.');
     }

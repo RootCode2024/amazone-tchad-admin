@@ -11,9 +11,9 @@
                 <use xlink:href="{{ asset('assets/brand/coreui.svg#full') }}"></use>
             </svg></a>
         <ul class="header-nav d-none d-md-flex">
-            <li class="nav-item"><a class="nav-link" href="#">Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Users</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Settings</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Tableau de Bord</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Utilisateurs</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Paramètres</a></li>
         </ul>
 
         <ul class="header-nav ms-auto">
@@ -30,18 +30,21 @@
                 </a></li>
         </ul>
         <ul class="header-nav ms-3">
-            <li class="nav-item dropdown"><a class="nav-link py-0" data-coreui-toggle="dropdown" href="#"
+            <li class="nav-item dropdown">
+                <a class="nav-link py-0" data-coreui-toggle="dropdown" href="#"
                     role="button" aria-haspopup="true" aria-expanded="false">
-                    <div class="avatar avatar-md"><img class="avatar-img" src="{{ asset('assets/img/avatars/8.jpg') }}"
-                            alt="user@email.com"></div>
+                    <div class="avatar avatar-md">
+                        <img class="avatar-img" src="{{ asset('assets/img/avatars/8.jpg') }}"
+                            alt="{{ auth()->User()->email }}">
+                    </div>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end pt-0">
                     <div class="dropdown-header bg-light py-2">
-                        <div class="fw-semibold">Account</div>
+                        <div class="fw-semibold">Mon Compte</div>
                     </div><a class="dropdown-item" href="#">
 
                         <x-coreui-icon class="icon me-2" icon="cil-bell" />
-                        Updates
+                        Mis à jour
                         <span class="badge badge-sm bg-info ms-2">42</span></a>
 
                     <a class="dropdown-item" href="#">
@@ -53,31 +56,31 @@
                     <a class="dropdown-item" href="#">
 
                         <x-coreui-icon class="icon me-2" icon="cil-task" />
-                        Tasks<span class="badge badge-sm bg-success ms-2">42</span>
+                        Taches<span class="badge badge-sm bg-success ms-2">42</span>
                     </a>
 
                     <a class="dropdown-item" href="#">
 
                         <x-coreui-icon class="icon me-2" icon="cil-comment-square" />
-                        Comments<span class="badge badge-sm bg-success ms-2">42</span>
+                        Commentaires<span class="badge badge-sm bg-success ms-2">42</span>
                     </a>
 
 
                     <div class="dropdown-header bg-light py-2">
-                        <div class="fw-semibold">Settings</div>
+                        <div class="fw-semibold">Paramètres</div>
                     </div>
 
 
-                    <a class="dropdown-item" href="{{route('backend.profile.edit')}}">
+                    <a class="dropdown-item" href="{{route('admin.profile.edit')}}">
 
                         <x-coreui-icon class="icon me-2" icon="cil-user" />
-                        Profile
+                        Profil
                     </a>
 
                     <a class="dropdown-item" href="#">
 
                         <x-coreui-icon class="icon me-2" icon="cil-settings" />
-                        Settings
+                        Paramètres
                     </a>
 
                     <a class="dropdown-item" href="#">
@@ -89,14 +92,14 @@
                     <a class="dropdown-item" href="#">
 
                         <x-coreui-icon class="icon me-2" icon="cil-file" />
-                        Projects
+                        Projets
                     </a>
 
                     <div class="dropdown-divider"></div>
 
                     <a class="dropdown-item" href="#">
                         <x-coreui-icon class="icon me-2" icon="cil-lock-locked" />
-                        Lock Account
+                        Bloquer le compte
                     </a>
 
 
@@ -110,7 +113,7 @@
                                     onclick="event.preventDefault();
                                                 this.closest('form').submit();">
                             <x-coreui-icon class="icon me-2" icon="cil-account-logout" />
-                                {{ __('Log Out') }}
+                                {{ __('Déconnexion') }}
                             </x-dropdown-link>
                         </form>
 
