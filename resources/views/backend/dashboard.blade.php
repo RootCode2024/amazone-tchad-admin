@@ -1,5 +1,6 @@
 @extends('backend.layouts.app')
 
+@section('title', 'Tableau de bord - Amazone Tchad Admin')
 
 @section('breadcrum')
 <div class="container-fluid">

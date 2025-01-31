@@ -37,9 +37,15 @@
             </a>
             <ul class="nav-group-items">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.profile.edit') }}">
+                    <a class="nav-link" href="{{ route('clients.index') }}">
                         <x-coreui-icon class="nav-icon" icon="cil-pen" />
-                        Liste
+                        Liste clients
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('clients.reservations') }}">
+                        <x-coreui-icon class="nav-icon" icon="cil-pen" />
+                        Liste reservations
                     </a>
                 </li>
                 <li class="nav-item">

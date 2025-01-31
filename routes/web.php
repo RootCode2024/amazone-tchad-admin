@@ -33,6 +33,7 @@ Route::post('/admin/reservations/{reservation}/reject', [ReservationController::
 Route::post('/admin/reservations/{reservation}/pending', [ReservationController::class, 'pending'])->name('reservations.pending');
 
 Route::get('/admin/clients', [ClientController::class, 'index'])->name('clients.index');
+Route::get('/admin/reservations', [ClientController::class, 'reservations'])->name('clients.reservations');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/backend.php';

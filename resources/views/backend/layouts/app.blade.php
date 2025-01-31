@@ -11,7 +11,7 @@
 
     <!-- Scripts -->
     @vite(['resources/sass/style.scss'])
-
+    @vite(['resources/js/app.js'])
     @yield('head')
 
 
