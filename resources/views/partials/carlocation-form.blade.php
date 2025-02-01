@@ -1,8 +1,7 @@
-<form x-show="activeTab === 'voiture'" action="" method="POST" class="space-y-4">
+<form x-show="activeTab === 'voiture'" method="POST" action="{{ route('reservations.store.location') }}" class="space-y-4">
     @csrf
     <h2 class="text-lg font-bold">Réservez une voiture</h2>
     <div x-data="{ activeStep: 'one' }">
-
         <div x-show="activeStep === 'one'">
             <div class="form-group">
                 <label for="pickup">Lieu de prise en charge</label>
@@ -22,34 +21,34 @@
             </div>
 
             <div class="form-group">
-                <label for="conductor">Age du conducteur</label>
-                <input type="number" required />
+                <label for="conductor">Âge du conducteur</label>
+                <input type="number" id="conductor" name="conductor" required>
             </div>
             <button type="button" @click="activeStep = 'two'">Suivant</button>
         </div>
 
         <div x-show="activeStep === 'two'">
             <div class="form-group">
-                <label for="lastname">Nom</label>
-                <input type="text" name="lastname" id="lastname" placeholder="Votre Nom" required />
+                <label for="lastnameCar">Nom</label>
+                <input type="text" name="lastname" id="lastnameCar" placeholder="Votre Nom" required />
                 @error('lastname') <span class="error">{{ $message }}</span> @enderror
 
-                <label for="firstname">Prénom (s)</label>
-                <input type="text" id="firstname" name="firstname" placeholder="Vos prénoms">
+                <label for="firstnameCar">Prénom(s)</label>
+                <input type="text" id="firstnameCar" name="firstname" placeholder="Vos prénoms">
                 @error('firstname') <span class="error">{{ $message }}</span> @enderror
             </div>
 
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="Votre Adresse mail">
+                <label for="emailCar">Email</label>
+                <input type="email" id="emailCar" name="email" placeholder="Votre Adresse mail">
                 @error('email') <span class="error">{{ $message }}</span> @enderror
 
-                <label for="phone">Téléphone</label>
-                <input type="tel" id="phone" name="phone" placeholder="Votre numéro">
+                <label for="phoneCar">Téléphone</label>
+                <input type="tel" id="phoneCar" name="phone" placeholder="Votre numéro">
                 @error('phone') <span class="error">{{ $message }}</span> @enderror
             </div>
             <div class="form-group">
-                <button type="button" @click="activeStep = 'one'">Precedent</button>
+                <button type="button" @click="activeStep = 'one'">Précédent</button>
                 <button type="submit">Envoyer</button>
             </div>
         </div>

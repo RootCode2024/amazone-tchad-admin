@@ -1,5 +1,4 @@
 <form x-show="activeTab === 'vols'" x-data="{ typeVol: '{{ old('type', 'one-way') }}' }" method="POST" action="{{ route('reservations.store.vol') }}">
-    
     @csrf
 
     <h2>Réservez votre vol</h2>
@@ -8,8 +7,8 @@
     <div x-data="{ activeStep: 'one' }">
         <div x-show="activeStep === 'one'">
             <div class="form-group">
-                <label for="type">Type</label>
-                <select id="type" name="type" x-model="typeVol">
+                <label for="flight_type">Type</label>
+                <select id="flight_type" name="type" x-model="typeVol">
                     <option value="one-way" {{ old('type') == 'one-way' ? 'selected' : '' }}>Aller simple</option>
                     <option value="round-trip" {{ old('type') == 'round-trip' ? 'selected' : '' }}>Aller-retour</option>
                     <option value="multi-destination" {{ old('type') == 'multi-destination' ? 'selected' : '' }}>Multi-destinations</option>
@@ -69,7 +68,7 @@
                 <input type="text" name="lastname" id="lastname" placeholder="Votre Nom" required />
                 @error('lastname') <span class="error">{{ $message }}</span> @enderror
 
-                <label for="firstname">Prénom (s)</label>
+                <label for="firstname">Prénom(s)</label>
                 <input type="text" id="firstname" name="firstname" placeholder="Vos prénoms">
                 @error('firstname') <span class="error">{{ $message }}</span> @enderror
             </div>
@@ -84,10 +83,9 @@
                 @error('phone') <span class="error">{{ $message }}</span> @enderror
             </div>
             <div class="form-group">
-                <button type="button" @click="activeStep = 'one'">Precedent</button>
+                <button type="button" @click="activeStep = 'one'">Précédent</button>
                 <button type="submit">Envoyer</button>
             </div>
         </div>
     </div>
-    
 </form>
