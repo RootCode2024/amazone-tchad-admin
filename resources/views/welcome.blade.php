@@ -1,53 +1,94 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Réservation de Voyage</title>
-    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('assets/css/welcome.css') }}">
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    
+	<title>Réservation de Voyage</title>
+    
+	<!-- Google font -->
+	<link href="https://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+    
+	<!-- Bootstrap -->
+	<link type="text/css" rel="stylesheet" href="{{ asset('assets/front/css/bootstrap.min.css') }}" />
+    
+	<!-- Custom stlylesheet -->
+	<link type="text/css" rel="stylesheet" href="{{ asset('assets/front/css/style.css') }}" />
     @vite(['resources/js/app.js'])
 </head>
+
 <body>
-
-    <header>Agence de voyage - Amazone Tchad</header>
-
-<div x-data="{ activeTab: 'vols' }" class="forms">
-    <img src="{{ asset('assets/img/full.jpg') }}" alt="Amazone Tchad">
-
-    <div class="content">
-        <!-- Tabs -->
-        <div class="tabs">
-            <div class="tab" :class="{ 'active': activeTab === 'vols' }" @click="activeTab = 'vols'">Vols</div>
-            <div class="tab" :class="{ 'active': activeTab === 'hotels' }" @click="activeTab = 'hotels'">Hôtels</div>
-            <div class="tab" :class="{ 'active': activeTab === 'volhotel' }" @click="activeTab = 'volhotel'">Vol + Hôtel</div>
-            <div class="tab" :class="{ 'active': activeTab === 'voiture' }" @click="activeTab = 'voiture'">Location de voiture</div>
-        </div>
-    
-        <!-- Form Container -->
-        <div class="form-container">
-            @if(session('success'))
-                <span>{{ session('success') }}</span>
-            @endif
-
-            <!-- Formulaire Vols -->
-            @include('partials.vol-form')
-            
-            <!-- Formulaire Hôtels -->
-            @include('partials.hotel-form')
-        
-            <!-- Formulaire Vol + Hôtel -->
-            @include('partials.volhotel-form')
-        
-            <!-- Formulaire Location de Voiture -->
-            @include('partials.carlocation-form')
-            
-        </div>
-    </div>
-    
-</div>
-
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
+	<div id="booking" class="section" x-data="{ activeTab: 'vols' }">
+        <img src="{{ asset('assets/img/logo.png') }}" alt="logo" style="width: auto; height: 100px;">
+		<div class="section-center">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-4">
+						<div class="booking-cta">
+							<h1>Réservez dès maintenant</h1>
+							<p style="font-size: 17px">
+                                <em>
+                                    Amazone Tchad vous permet de réserver votre voyage en ligne simplement et rapidement. Nos équipes sont à votre disposition pour vous aider à trouver les meilleurs vols, les hôtels les plus confortables et les voitures les plus économiques.
+                                </em>
+                            </p>
+						</div>
+					</div>
+					<div class="col-md-7 col-md-offset-1">
+                        <!-- Tabs -->
+                        <div class="col-12 d-flex justify-content-center tabs">
+                            <ul class="nav nav-pills">
+                                <li class="nav-item">
+                                    <a style="cursor: pointer;" class="nav-link" :class="{ 'active': activeTab === 'vols' }" @click="activeTab = 'vols'">Vols</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a style="cursor: pointer;" class="nav-link" :class="{ 'active': activeTab === 'hotels' }" @click="activeTab = 'hotels'">Hôtels</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a style="cursor: pointer;" class="nav-link" :class="{ 'active': activeTab === 'volhotel' }" @click="activeTab = 'volhotel'">Vol + Hôtel</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a style="cursor: pointer;" class="nav-link" :class="{ 'active': activeTab === 'voiture' }" @click="activeTab = 'voiture'">Location de voiture</a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+						<div class="booking-form">
+                            <div class="row mt-4">
+                                <!-- Form Container -->
+                            <div class="col-12 form-container">
+                                @if(session('success'))
+                                    <div class="alert alert-success">{{ session('success') }}</div>
+                                @endif
+                
+                                <!-- Formulaire Vols -->
+                                <div x-show="activeTab === 'vols'">
+                                    @include('partials.vol-form')
+                                </div>
+                                  
+                                <!-- Formulaire Hôtels -->
+                                <div x-show="activeTab === 'hotels'">
+                                    @include('partials.hotel-form')
+                                </div>
+                        
+                                <!-- Formulaire Vol + Hôtel -->
+                                <div x-show="activeTab === 'volhotel'">
+                                    @include('partials.volhotel-form')
+                                </div>
+                        
+                                <!-- Formulaire Location de Voiture -->
+                                <div x-show="activeTab === 'voiture'">
+                                    @include('partials.carlocation-form')
+                                </div>
+                            </div>
+                            </div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
+
 </html>

@@ -1,3 +1,4 @@
+/* Styles globaux */
 body {
     font-family: 'Poppins', sans-serif;
     background: #f5f7fa;
@@ -14,21 +15,24 @@ header {
     font-weight: bold;
 }
 
+/* Styles pour les onglets */
 .tabs {
     display: flex;
     justify-content: center;
     background: #e6e9ee;
     padding: 10px;
+    flex-wrap: wrap; /* Onglets peuvent se réarranger sur les petits écrans */
 }
 
 .tab {
     padding: 10px 20px;
-    margin: 0 10px;
+    margin: 5px;
     background: #ffffff;
     border-radius: 5px;
     cursor: pointer;
     font-weight: 500;
     transition: background 0.3s;
+    text-align: center;
 }
 
 .tab.active {
@@ -39,15 +43,20 @@ header {
 .tab:hover {
     background: #dce3ea;
 }
+
+/* Conteneur principal */
 .forms {
     position: relative;
     width: 100%;
 }
 
-.forms img{
-    width: 100%;
+.forms img {
+    width: 100%;  /* L'image prend 100% de la largeur */
+    object-fit: cover;  /* Pour une meilleure gestion du recadrage */
+    height: 300px;  /* Ajustement de la hauteur */
 }
 
+/* Styles pour le contenu du formulaire */
 .content {
     position: absolute;
     width: 100%;
@@ -57,6 +66,7 @@ header {
     background-color: rgba(255, 255, 255, 0.5);
 }
 
+/* Formulaire */
 .form-container {
     background-color: rgba(255, 255, 255, 0.8);
     padding: 25px;
@@ -64,38 +74,34 @@ header {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     max-width: 900px;
     margin: 20px auto;
+    width: 90%;  /* Ajustement de la largeur pour les petits écrans */
 }
 
+/* Champs du formulaire */
 .form-group {
     display: flex;
+    flex-wrap: wrap;  /* Les éléments vont s'empiler en colonne sur petits écrans */
     align-items: center;
     gap: 15px;
     margin-bottom: 20px;
 }
 
 .form-group label {
-    flex: 0 0 100px; /* Largeur fixe pour aligner les labels */
+    flex: 0 0 100px;
     font-weight: 500;
     color: #555;
 }
 
+.form-group input, 
 .form-group select {
-    flex: 1; /* Prend l'espace disponible */
+    flex: 1;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
     font-size: 1rem;
 }
 
-
-.form-group input {
-    flex: 1 1 calc(50% - 15px);
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-}
-
+/* Boutons */
 button {
     width: 100%;
     padding: 15px;
@@ -111,7 +117,76 @@ button:hover {
     background: #003d7a;
 }
 
+/* Messages d'erreur */
 .error {
     color: red;
     font-size: 0.9em;
+}
+
+/* Adaptation aux tablettes et écrans plus petits */
+
+/* Quand la largeur de l'écran est inférieure à 768px (tablettes et mobiles) */
+@media (max-width: 768px) {
+
+    /* Onglets */
+    .tabs {
+        flex-direction: column;  /* Onglets en colonne */
+        padding: 10px 0;
+    }
+
+    .tab {
+        width: 100%;  /* Les onglets prennent toute la largeur */
+        margin: 5px 0;
+    }
+
+    /* Formulaire */
+    .form-container {
+        max-width: 100%;
+        padding: 15px;
+        margin: 15px 10px;
+    }
+
+    .form-group {
+        flex-direction: column;  /* Champs du formulaire en colonne */
+    }
+
+    .form-group input, 
+    .form-group select {
+        flex: 1 1 100%;  /* Chaque champ prend toute la largeur */
+    }
+
+    button {
+        padding: 12px;  /* Réduction de la taille du bouton */
+        font-size: 1rem;
+    }
+
+    .content {
+        background-color: rgba(255, 255, 255, 0.7);  /* Moins de transparence */
+        padding: 10px;
+    }
+}
+
+/* Quand la largeur de l'écran est inférieure à 480px (mobiles) */
+@media (max-width: 480px) {
+    header {
+        font-size: 1.3rem;  /* Réduit la taille du texte */
+    }
+
+    .form-container {
+        padding: 10px;
+    }
+
+    .form-group input,
+    .form-group select {
+        font-size: 0.9rem;  /* Ajuste la taille de la police */
+    }
+
+    .error {
+        font-size: 0.8rem;  /* Réduction de la taille des messages d'erreur */
+    }
+
+    button {
+        padding: 10px;
+        font-size: 0.9rem;  /* Petite réduction de taille des boutons */
+    }
 }

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Reservation extends Model
+class Flight extends Model
 {
     use HasFactory;
     protected $fillable = [
@@ -16,7 +16,7 @@ class Reservation extends Model
         'return_date',
         'passengers',
         'flight_class',
-        'type',
+        'flight_type',
         'status',
     ];
 

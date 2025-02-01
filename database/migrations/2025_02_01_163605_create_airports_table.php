@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('clients', function (Blueprint $table) {
+        Schema::create('airports', function (Blueprint $table) {
             $table->id();
-            $table->string('firstname');
-            $table->string('lastname');
-            $table->string('email')->unique();
-            $table->string('phone')->unique();
-            $table->enum('type_of_reservation', ['flight', 'hotel', 'flight_hotel', 'car_location'])->default('flight');
+            $table->string('country');
+            $table->string('airport_name')->unique();
+            $table->string('iata');
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('clients');
+        Schema::dropIfExists('airports');
     }
 };

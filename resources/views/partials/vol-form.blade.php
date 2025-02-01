@@ -1,133 +1,174 @@
-<form x-show="activeTab === 'vols'" 
-      x-data="{
-          typeVol: '{{ old('type', 'one-way') }}',
-          activeStep: 'one',
-          errors: {}
-      }" 
-      method="POST" 
-      action="{{ route('reservations.store.vol') }}">
+<form x-show="activeTab === 'vols'" x-data="{ typeVol: '{{ old('flight_type', 'one-way') }}', activeStep: 'one', errors: {}}" method="POST" action="{{ route('reservations.store.vol') }}">
+
     @csrf
-
-    <h2>Réservez votre vol</h2>
-
-    <input type="hidden" name="form_name" value="vol" required />
 
     <!-- Étape 1 : Informations sur le vol -->
     <div x-show="activeStep === 'one'" x-ref="stepOneContainer">
+        
+        <!-- Type de vol -->
         <div class="form-group">
-            <label for="flight_type">Type</label>
-            <select id="flight_type" name="type" x-model="typeVol" required>
-                <option value="one-way" {{ old('type') == 'one-way' ? 'selected' : '' }}>Aller simple</option>
-                <option value="round-trip" {{ old('type') == 'round-trip' ? 'selected' : '' }}>Aller-retour</option>
-                <option value="multi-destination" {{ old('type') == 'multi-destination' ? 'selected' : '' }}>Multi-destinations</option>
-            </select>
-            <!-- Affichage de l'erreur en cas d'invalidité -->
-            <span class="error" style="color:red;" x-text="errors['type']"></span>
-            @error('type') <span class="error">{{ $message }}</span> @enderror
+            <div class="form-checkbox">
+                <label for="roundtrip">
+                    <input type="radio" id="roundtrip" name="flight_type" value="round-trip" x-model="typeVol" required>
+                    <span></span>Aller-Retour
+                </label>
+                <label for="one-way">
+                    <input type="radio" id="one-way" name="flight_type" value="one-way" x-model="typeVol" required>
+                    <span></span>Aller Simple
+                </label>
+                <label for="multi-city">
+                    <input type="radio" id="multi-city" name="flight_type" value="multi-destination" x-model="typeVol" required>
+                    <span></span>Multi-destination
+                </label>
+            </div>
+            <span class="error text-danger" x-text="errors['flight_type']"></span>
+            @error('flight_type')
+                <span class="error text-danger">{{ $message }}</span>
+            @enderror
+        </div>
+        
+        <!-- Origine et destination -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <span class="form-label">Lieu de départ</span>
+                    <select id="origin" name="origin" class="form-control" required>
+                        @foreach ($airports as $airport)
+                            <option value="{{ $airport->id }}" {{ old('origin') == $airport->id ? 'selected' : '' }}>
+                                {{ $airport->country . ' ( ' . Str::lower($airport->airport_name) . ' )' }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <span class="form-label">Destination</span>
+                    <select id="destination" name="destination" class="form-control" required>
+                        @foreach ($airports as $airport)
+                            <option value="{{ $airport->id }}" {{ old('destination') == $airport->id ? 'selected' : '' }}>
+                                {{ $airport->country . ' ( ' . Str::lower($airport->airport_name) . ' )' }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="passengers">Nombre de passagers</label>
-            <select id="passengers" name="passengers" required>
-                @for ($i = 1; $i <= 10; $i++)
-                    <option value="{{ $i }}" {{ old('passengers') == $i ? 'selected' : '' }}>{{ $i }}</option>
-                @endfor
-            </select>
-            <span class="error" style="color:red;" x-text="errors['passengers']"></span>
-            @error('passengers') <span class="error">{{ $message }}</span> @enderror
-
-            <label for="flight_class">Classe</label>
-            <select id="flight_class" name="flight_class" required>
-                <option value="economy" {{ old('flight_class') == 'economy' ? 'selected' : '' }}>Économique</option>
-                <option value="premium" {{ old('flight_class') == 'premium' ? 'selected' : '' }}>Première</option>
-                <option value="business" {{ old('flight_class') == 'business' ? 'selected' : '' }}>Business</option>
-            </select>
-            <span class="error" style="color:red;" x-text="errors['flight_class']"></span>
-            @error('flight_class') <span class="error">{{ $message }}</span> @enderror
+        <!-- Dates -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <span class="form-label">Date départ</span>
+                    <input class="form-control" type="date" name="departure" id="departure" required>
+                    <span class="error text-danger" x-text="errors['departure']"></span>
+                    @error('departure')
+                        <span class="error text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <span class="form-label">Date Retour</span>
+                    <input class="form-control" type="date" name="return" id="return" :disabled="typeVol === 'one-way'" x-bind:required="typeVol !== 'one-way'" required>
+                    <span class="error text-danger" x-text="errors['return']"></span>
+                    @error('return')
+                        <span class="error text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="origin">Origine</label>
-            <select id="origin" name="origin" required>
-                <option value="N'Djamena" {{ old('origin') == "N'Djamena" ? 'selected' : '' }}>N'Djamena</option>
-                <option value="Moundou" {{ old('origin') == 'Moundou' ? 'selected' : '' }}>Moundou</option>
-            </select>
-            <span class="error" style="color:red;" x-text="errors['origin']"></span>
-            @error('origin') <span class="error">{{ $message }}</span> @enderror
-
-            <label for="destination">Destination</label>
-            <select id="destination" name="destination" required>
-                <option value="Paris" {{ old('destination') == 'Paris' ? 'selected' : '' }}>Paris</option>
-                <option value="Casablanca" {{ old('destination') == 'Casablanca' ? 'selected' : '' }}>Casablanca</option>
-            </select>
-            <span class="error" style="color:red;" x-text="errors['destination']"></span>
-            @error('destination') <span class="error">{{ $message }}</span> @enderror
+        <!-- Passengers -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <span class="form-label">Nombre de Passagers</span>
+                    <select id="passengers" name="passengers" class="form-control" required>
+                        @for ($i = 1; $i <= 10; $i++)
+                            <option value="{{ $i }}" {{ old('passengers') == $i ? 'selected' : '' }}>
+                                {{ $i }}</option>
+                        @endfor
+                    </select>
+                    <span class="select-arrow"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <span class="form-label">Classe</span>
+                    <select class="form-control" id="flight_class" name="flight_class" required>
+                        <option value="economy" {{ old('flight_class') == 'economy' ? 'selected' : '' }}>Économique
+                        </option>
+                        <option value="premium" {{ old('flight_class') == 'premium' ? 'selected' : '' }}>Première</option>
+                        <option value="business" {{ old('flight_class') == 'business' ? 'selected' : '' }}>Business
+                        </option>
+                    </select>
+                    <span class="select-arrow"></span>
+                </div>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="departure">Départ</label>
-            <input type="date" id="departure" name="departure" value="{{ old('departure') }}" required>
-            <span class="error" style="color:red;" x-text="errors['departure']"></span>
-            @error('departure') <span class="error">{{ $message }}</span> @enderror
-
-            <label for="return">Retour</label>
-            <input type="date" 
-                   id="return" 
-                   name="return" 
-                   value="{{ old('return') }}" 
-                   :disabled="typeVol === 'one-way'"
-                   x-bind:required="typeVol !== 'one-way'">
-            <span class="error" style="color:red;" x-text="errors['return']"></span>
-            @error('return') <span class="error">{{ $message }}</span> @enderror
-        </div>
-
-        <button type="button" 
-                @click="
-                    errors = {};
-                    const inputs = $refs.stepOneContainer.querySelectorAll('input[required], select[required]');
-                    let valid = true;
-                    inputs.forEach(input => {
-                        if (!input.checkValidity()) {
-                            valid = false;
-                            errors[input.name] = input.validationMessage;
-                        } else {
-                            errors[input.name] = '';
-                        }
-                    });
-                    if (valid) {
-                        activeStep = 'two';
-                    }
-                ">
+        <button type="button" class="btn btn-primary mt-3"
+            @click="errors = {}; const inputs = $refs.stepOneContainer.querySelectorAll('input[required], select[required]'); let valid = true; inputs.forEach(input => { if (!input.checkValidity()) { valid = false; errors[input.name] = input.validationMessage; } else { errors[input.name] = ''; } }); if (valid) { activeStep = 'two'; }">
             Suivant
         </button>
     </div>
 
     <!-- Étape 2 : Informations personnelles -->
     <div x-show="activeStep === 'two'">
-        <div class="form-group">
-            <label for="lastname">Nom</label>
-            <input type="text" name="lastname" id="lastname" placeholder="Votre Nom" required minlength="2">
-            @error('lastname') <span class="error">{{ $message }}</span> @enderror
-
-            <label for="firstname">Prénom(s)</label>
-            <input type="text" id="firstname" name="firstname" placeholder="Vos prénoms" required minlength="2">
-            @error('firstname') <span class="error">{{ $message }}</span> @enderror
+        <!-- Informations personnelles -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <span class="form-label">Nom</span>
+                    <input type="text" name="lastname" id="lastname" class="form-control" placeholder="Votre Nom"
+                    required minlength="2">
+                    @error('lastname')
+                        <span class="error text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <span class="form-label">Prénom (s)</span>
+                    <input type="text" id="firstname" name="firstname" class="form-control"
+                    placeholder="Vos prénoms" required minlength="2">
+                    @error('firstname')
+                        <span class="error text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <span class="form-label">Email</span>
+                    <input type="text" name="email" id="email" class="form-control" placeholder="Votre Adresse mail"
+                    required minlength="2">
+                    @error('email')
+                        <span class="error text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <span class="form-label">Téléphone</span>
+                    <input type="text" id="phone" name="phone" class="form-control"
+                    placeholder="Votre numéro" required minlength="2">
+                    @error('phone')
+                        <span class="error text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" placeholder="Votre Adresse mail" required>
-            @error('email') <span class="error">{{ $message }}</span> @enderror
-
-            <label for="phone">Téléphone</label>
-            <!-- Exemple : numéro composé de 8 à 15 chiffres -->
-            <input type="tel" id="phone" name="phone" placeholder="Votre numéro" required pattern="\d{8,15}">
-            @error('phone') <span class="error">{{ $message }}</span> @enderror
-        </div>
-
-        <div class="form-group">
-            <button type="button" @click="activeStep = 'one'">Précédent</button>
-            <button type="submit">Envoyer</button>
+        <div class="form-group row">
+            <div class="col-12 col-md-6">
+                <button type="button" class="btn btn-secondary" @click="activeStep = 'one'">Précédent</button>
+            </div>
+            <div class="col-12 col-md-6 text-right">
+                <button type="submit" class="btn btn-primary">Envoyer</button>
+            </div>
         </div>
     </div>
 </form>
