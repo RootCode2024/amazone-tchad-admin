@@ -21,7 +21,7 @@ class ReservationController extends Controller
 
         return view('admin.reservations.index', compact('flights', 'hotels', 'car_locations'));
     }
-    
+
     public function storeFlight(Request $request)
     {        
         $request->validate([

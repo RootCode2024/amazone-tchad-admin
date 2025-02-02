@@ -34,7 +34,7 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return Redirect::route('backend.profile.edit')->with('success', 'Profile Updated');
+        return Redirect::route('admin.profile.edit')->with('success', 'Profile Updated');
     }
 
     /**

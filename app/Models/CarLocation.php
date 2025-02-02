@@ -15,4 +15,9 @@ class CarLocation extends Model
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function country()
+    {
+        return $this->belongsTo(Airport::class, 'place_of_location');
+    }
 }

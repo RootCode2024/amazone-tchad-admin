@@ -11,8 +11,20 @@ class Client extends Model
 
     protected $fillable = ['firstname', 'lastname', 'email', 'phone', 'type_of_reservation'];
 
-    public function reservations()
+    public function hotels()
     {
-        return $this->hasMany(Reservation::class);
+        return $this->hasMany(Hotel::class);
     }
+
+    public function flights()
+    {
+        return $this->hasMany(Flight::class);
+    }
+
+    public function carLocations()
+    {
+        return $this->hasMany(CarLocation::class);
+    }
+
+    
 }

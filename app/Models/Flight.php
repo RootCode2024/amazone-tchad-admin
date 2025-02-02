@@ -22,6 +22,21 @@ class Flight extends Model
 
     public function client()
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(Client::class, 'client_id');
+    }
+
+    // Relation pour l'aéroport d'origine (départ)
+    public function country()
+    {
+        return $this->belongsTo(Airport::class, 'origin');
+    }
+
+    /**
+     * Relation vers l'aéroport d'arrivée.
+     * On suppose que la colonne "destination" dans la table flights stocke l'id de l'aéroport d'arrivée.
+     */
+    public function destination()
+    {
+        return $this->belongsTo(Airport::class, 'destination');
     }
 }
