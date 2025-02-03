@@ -26,35 +26,81 @@
 
             @if ($type == 'Vol')
                 <h5 class="text-center text-primary fw-bold fs-2"><i class="fas fa-plane"></i> Vol</h5>
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Client ID :</strong> {{ $reservation->client_id }}</p>
-                    <p><strong>Origine :</strong> {{ $reservation->country->country }}</p>
-                    <p><strong>Date de Départ :</strong> {{ $reservation->departure_date }}</p>
-                    <p><strong>Passagers :</strong> {{ $reservation->passengers }}</p>
-                    <p><strong>Classe :</strong> {{ ucfirst($reservation->flight_class) }}</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Client ID :</strong> {{ $reservation->client_id }}</p>
+                        
+                        <p><strong>Origine :</strong> {{ $reservation->country ? $reservation->country->country : 'Non spécifié' }}</p>
+                        <p><strong>Date de Départ :</strong>
+                            {{ \Carbon\Carbon::parse($reservation->departure_date)->locale('fr')->isoFormat('D MMMM YYYY') }}
+                        </p>
+                        <p><strong>Nombre de Passager (s) :</strong> {{ $reservation->passengers }}</p>
+                        <p><strong>Classe :</strong>
+                            @if ($reservation->flight_class === 'economy')
+                                Economie
+                            @elseif ($reservation->flight_class === 'premium')
+                                Première
+                            @else
+                                Business
+                            @endif
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Statut :</strong> 
+                            <span class="badge {{ $reservation->status == 'confirmé' ? 'bg-success' : 'bg-warning' }}">
+                                @if ($reservation->status === 'pending')
+                                    En Attente
+                                @elseif ($reservation->status === 'validated')
+                                    Validé
+                                @else
+                                    Rejeté
+                                @endif
+                            </span>
+                        </p>
+                        <p><strong>Destination :</strong> 
+                            {{ (\App\Models\Airport::where('id', $reservation->destination)->first())->country }}
+                        </p>
+                        @isset($reservation->return_date)
+                        <p><strong>Date de Retour :</strong> 
+                                {{ \Carbon\Carbon::parse($reservation->return_date)->locale('fr')->isoFormat('D MMMM YYYY') }}
+                        </p></div>
+                        @endisset
+                        <p><strong>Type de Vol :</strong> 
+                            @if ($reservation->flight_type === 'one-way')
+                                Aller Simple
+                            @elseif ($reservation->flight_type === 'round-trip')
+                                Aller - Retour
+                            @else
+                                Multi-destination
+                            @endif
+                        </p>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <p><strong>Destination :</strong> {{ $reservation->country->country }}</p>
-                    <p><strong>Date de Retour :</strong> {{ $reservation->return_date }}</p>
-                    <p><strong>Type de Vol :</strong> {{ $reservation->flight_type }}</p>
-                    <p><strong>Statut :</strong> {{ $reservation->status }}</p>
-                </div>
-            </div>
             @elseif ($type == 'Hôtel')
-                <h5><i class="fas fa-hotel"></i> Hôtel</h5>
-                <p><strong>Nom :</strong> {{ $reservation->hotel_name }}</p>
-                <p><strong>Ville :</strong> {{ $reservation->city }}</p>
-                <p><strong>Date d'entrée :</strong> {{ $reservation->check_in }}</p>
-                <p><strong>Date de sortie :</strong> {{ $reservation->check_out }}</p>
-                <p><strong>Chambre :</strong> {{ $reservation->room_type }}</p>
+                <h5 class="text-center text-primary fw-bold fs-2"><i class="fas fa-hotel"></i> Hôtel</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Ville :</strong> {{ $reservation->country->country }}</p>
+                        <p><strong>Date d'entrée :</strong> {{ $reservation->arrival_date }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Nombre de Chambre :</strong> {{ $reservation->number_of_room }}</p>
+                        <p><strong>Date de sortie :</strong> {{ $reservation->return_date }}</p>
+                    </div>
+                </div>
             @elseif ($type == 'Location de Voiture')
-                <h5><i class="fas fa-car"></i> Location de Voiture</h5>
-                <p><strong>Modèle :</strong> {{ $reservation->car_model }}</p>
-                <p><strong>Agence :</strong> {{ $reservation->agency_name }}</p>
-                <p><strong>Lieu de prise en charge :</strong> {{ $reservation->pickup_location }}</p>
-                <p><strong>Date de début :</strong> {{ $reservation->start_date }}</p>
-                <p><strong>Date de retour :</strong> {{ $reservation->end_date }}</p>
+                <h5 class="text-center text-primary fw-bold fs-2"><i class="fas fa-car"></i> Location de Voiture</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Modèle :</strong> {{ $reservation->car_model }}</p>
+                        <p><strong>Agence :</strong> {{ $reservation->agency_name }}</p>
+                        <p><strong>Lieu de prise en charge :</strong> {{ $reservation->pickup_location }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Date de début :</strong> {{ $reservation->start_date }}</p>
+                        <p><strong>Date de retour :</strong> {{ $reservation->end_date }}</p>
+                    </div>
+                </div>
             @endif
 
             <hr>

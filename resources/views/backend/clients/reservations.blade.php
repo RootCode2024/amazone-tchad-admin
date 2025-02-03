@@ -72,9 +72,9 @@
                                         <hr class="my-1">
                                         <span class="fw-bold text-success">
                                             <i class="fas fa-map-marker-alt"></i> 
-                                            <span x-text="reservation.country ? reservation.country.country : ''"></span> 
+                                            {{-- <span x-text="reservation.countries ? reservation.countries.country : ''"></span> 
                                             → 
-                                            <span x-text="reservation.destination ? reservation.destination.country : ''"></span>
+                                            <span x-text="reservation.destination ? reservation.destinations.country : ''"></span> --}}
                                         </span>
                                         
                                         <span class="text-muted">

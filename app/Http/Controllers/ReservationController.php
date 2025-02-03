@@ -196,15 +196,32 @@ class ReservationController extends Controller
     
     
 
-    // public function validateReservation(Reservation $reservation)
-    // {
-    //     $reservation->update(['status' => 'validated']);
-    //     return back()->with('success', 'La réservation a été validée.');
-    // }
+    public function updateStatusFlight(Request $request, $id)
+    {
+        $reservation = Flight::findOrFail($id);
+        $reservation->status = $request->status;
+        $reservation->save();
 
-    // public function rejectReservation(Reservation $reservation)
-    // {
-    //     $reservation->update(['status' => 'rejected']);
-    //     return back()->with('error', 'La réservation a été rejetée.');
-    // }
+        return response()->json(['success' => true, 'newStatus' => $reservation->status]);
+    }
+
+    public function updateStatusHotel(Request $request, $id)
+    {
+        $reservation = Hotel::findOrFail($id);
+        $reservation->status = $request->status;
+        $reservation->save();
+
+        return response()->json(['success' => true, 'newStatus' => $reservation->status]);
+    }
+
+
+    public function updateStatusCarLocation(Request $request, $id)
+    {
+        dd('yo');
+        $reservation = CarLocation::findOrFail($id);
+        $reservation->status = $request->status;
+        $reservation->save();
+
+        return response()->json(['success' => true, 'newStatus' => $reservation->status]);
+    }
 }

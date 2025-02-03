@@ -19,20 +19,29 @@ class BackendReservationController extends Controller
         return view('backend.clients.reservations');
     }
 
-    public function show($id)
+    public function show($client_id, $reservation_id)
     {
-        // Vérifier si c'est un vol, un hôtel ou une location de voiture
-        $reservation = Flight::find($id) ?? Hotel::find($id) ?? CarLocation::find($id);
+        // dd($reservation_id, $client_id);
+        // Recherche d'une réservation parmi les différentes tables
+        $reservation = Flight::where('client_id', $client_id)->with(['country', 'destination'])->find($reservation_id) 
+                    ?? Hotel::where('client_id', $client_id)->find($reservation_id) 
+                    ?? CarLocation::where('client_id', $client_id)->find($reservation_id);
     
         if (!$reservation) {
             return redirect()->route('clients.index')->with('error', 'Réservation non trouvée.');
         }
     
         // Déterminer le type de réservation
-        $type = $reservation instanceof Flight ? 'Vol' : ($reservation instanceof Hotel ? 'Hôtel' : 'Location de Voiture');
+        $type = match(true) {
+            $reservation instanceof Flight => 'Vol',
+            $reservation instanceof Hotel => 'Hôtel',
+            $reservation instanceof CarLocation => 'Location de Voiture',
+            default => 'Inconnu'
+        };    
     
         return view('backend.clients.detailsreservation', compact('reservation', 'type'));
     }
+    
     
 
     public function fetchReservations(Request $request)
@@ -97,7 +106,7 @@ class BackendReservationController extends Controller
         $flights = Flight::whereHas('client', function($query) {
                                     $query->where('type_of_reservation', 'flight');
                                 })
-                                ->with(['client', 'country', 'destination'])
+                                ->with(['client', 'countries', 'destinations'])
                                 ->orderBy('created_at', 'desc')
                                 ->paginate($perPage, ['*'], 'page', $currentPage);
     

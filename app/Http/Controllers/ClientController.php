@@ -25,12 +25,15 @@ class ClientController extends Controller
         $client = Client::findOrFail($id);
     
         // Récupérer les données associées
-        $flights = Flight::where('client_id', $client->id)->get();
         $hotels = Hotel::where('client_id', $client->id)->get();
+        $flights = Flight::where('client_id', $client->id)->get();
         $carLocations = CarLocation::where('client_id', $client->id)->get();
-    
+        
+        $allReservations = $flights->concat($hotels)->concat($carLocations);
+
+        // dd($allReservations[0]->destination);
         // Retourner la vue avec les données du client
-        return view('backend.clients.detailsclients', compact('client', 'flights', 'hotels', 'carLocations'));
+        return view('backend.clients.detailsclients', compact('allReservations', 'client'));
     }
     
     

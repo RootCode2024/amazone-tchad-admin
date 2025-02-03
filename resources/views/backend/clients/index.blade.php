@@ -38,15 +38,19 @@
             <tbody>
                 <template x-for="client in clients.data" :key="client?.id">
                     <tr>
-                        <td x-text="client.id"></td>
+                        <td x-text="clients.data.indexOf(client) + 1"></td>
                         <td>
                             <span x-text="client.firstname"></span>
                             <span x-text="client.lastname"></span>
                         </td>
                         <td x-text="client.email"></td>
                         <td x-text="client.phone"></td>
-                        <td x-text="client.type_of_reservation"></td>
-                        <td x-text="client.created_at"></td>
+                        <td>
+                            <span x-text="client.type_of_reservation === 'car_location' ? 'Location de voiture' : 
+                            (client.type_of_reservation === 'flight' ? 'Vol' : 
+                            (client.type_of_reservation === 'hotel' ? 'Hôtel' : 'Vol + Hôtel'))"></span>
+                        </td>
+                        <td x-text="new Date(client.created_at).toLocaleString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })"></td>
                         <td>
                             <a class="" @click="supprimerClient(client.id)">
                                 <x-coreui-icon class="nav-icon" icon="cil-trash" style="width: 15px;height:15px;color:red;" />
