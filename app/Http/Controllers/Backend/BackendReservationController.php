@@ -11,7 +11,7 @@ use App\Http\Controllers\Controller;
 
 class BackendReservationController extends Controller
 {
-        /**
+    /**
      * Affiche la liste des reservation (Page Blade)
      */
     public function index()
@@ -70,7 +70,7 @@ class BackendReservationController extends Controller
     {
         $perPage = $request->get('per_page', 5);
         $currentPage = $request->get('page', 1);
-
+        
         $hotels = Hotel::whereHas('client', function($query) {
                             $query->where('type_of_reservation', 'hotel');
                         })
@@ -142,8 +142,6 @@ class BackendReservationController extends Controller
     
         return $flights;
     }
-    
-
     
     //LOCATION DE VOITURE
 

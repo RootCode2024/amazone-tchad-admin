@@ -1,10 +1,8 @@
 <?php
 
-use App\Http\Controllers\ClientController;
-use App\Http\Controllers\Backend\BackendReservationController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\ReservationController;
 
 
 //ROUTES FRONTEND

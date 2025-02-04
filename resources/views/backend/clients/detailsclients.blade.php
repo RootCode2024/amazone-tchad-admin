@@ -69,7 +69,7 @@
                                 @endif
                             </td>
                             <td>
-                                {{ $reservation->destination ?? 'Non spécifié' }}
+                                {{ (\App\Models\Airport::where("id", $reservation->destination)->first())->country }}
                             </td>
                             <td>
                                 <span>
