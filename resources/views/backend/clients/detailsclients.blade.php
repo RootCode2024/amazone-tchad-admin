@@ -54,22 +54,12 @@
                     </tr>
                 </thead>
                 <tbody>
-
                     @forelse($allReservations as $reservation)
                         <tr class="align-middle text-center">
                             <td>{{ $loop->index + 1 }}</td>
                             <td>
-                                @if ($reservation instanceof \App\Models\Flight && $reservation instanceof \App\Models\Hotel)
-                                    Vol && Hotel
-                                @elseif($reservation instanceof \App\Models\Flight)
-                                    Vol <span style="color:green">(
-                                    @if($reservation->flight_type === 'round-trip')
-                                        Aller - Retour
-                                    @elseif ($reservation->flight_type === 'one-way')
-                                        Aller Simple
-                                    @else
-                                        Multi-destination
-                                    @endif )</span>
+                                @if ($reservation instanceof \App\Models\Flight)
+                                    Vol
                                 @elseif ($reservation instanceof \App\Models\Hotel)
                                     Hôtel
                                 @elseif ($reservation instanceof \App\Models\CarLocation)
@@ -79,66 +69,27 @@
                                 @endif
                             </td>
                             <td>
-                                @if ($reservation instanceof \App\Models\Flight)
-                                    {{ (\App\Models\Airport::where('id', $reservation->origin)->first())->country }}
-                                    ->
-                                    {{ (\App\Models\Airport::where('id', $reservation->destination)->first())->country }}
-                                @elseif ($reservation instanceof \App\Models\Hotel)
-                                    {{ $reservation->country->country }}
-                                @elseif ($reservation instanceof \App\Models\CarLocation)
-                                    {{ $reservation->country->country }}
-                                @else
-                                    Non spécifié
-                                @endif
-                                {{ $reservation->name ?? $reservation->title }}
+                                {{ $reservation->destination ?? 'Non spécifié' }}
                             </td>
                             <td>
-                                @if ($reservation instanceof \App\Models\Flight)
-                                <span>Départ le : {{ \Carbon\Carbon::parse($reservation->departure_date)->locale('fr')->isoFormat('D MMMM YYYY') }}</span>
+                                <span>
+                                    Départ : {{ \Carbon\Carbon::parse($reservation->departure_date ?? $reservation->arrival_date)->locale('fr')->isoFormat('D MMMM YYYY') }}
+                                </span>
                                 <br>
-                                <span>Retour le : {{ \Carbon\Carbon::parse($reservation->return_date)->locale('fr')->isoFormat('D MMMM YYYY') }}</span>
-                                @elseif ($reservation instanceof \App\Models\Hotel)
-                                <span>Début le : {{ \Carbon\Carbon::parse($reservation->arrival_date)->locale('fr')->isoFormat('D MMMM YYYY') }}</span>
-                                <br>
-                                <span>Fin le : {{ \Carbon\Carbon::parse($reservation->return_date)->locale('fr')->isoFormat('D MMMM YYYY') }}</span>
-                                @elseif ($reservation instanceof \App\Models\CarLocation)
-                                <span>Début le : {{ \Carbon\Carbon::parse($reservation->started_date)->locale('fr')->isoFormat('D MMMM YYYY') }}</span>
-                                <br>
-                                <span>Fin le : {{ \Carbon\Carbon::parse($reservation->ended_date)->locale('fr')->isoFormat('D MMMM YYYY') }}</span>
-                                @else
-                                    Non spécifié
-                                @endif
+                                <span>
+                                    Retour : {{ \Carbon\Carbon::parse($reservation->return_date ?? $reservation->ended_date)->locale('fr')->isoFormat('D MMMM YYYY') }}
+                                </span>
                             </td>
-                            @if ($reservation instanceof \App\Models\CarLocation)
-                                Age du conducteur : {{ $reservation->age }} ans
-                            @endif
                             <td>
-                                @if ($reservation instanceof \App\Models\Flight)
-                                <span
-                                    x-data="{ status: '{{ $reservation->status }}' }"
-                                    x-text="status === 'pending' ? 'En Attente' : (status === 'validated' ? 'Validé' : 'Rejeté')"
-                                    @click="updateStatusFlight({{ $reservation->id }}, status)"
-                                    style="cursor:cursor-pointer;padding:1px 2px;border-radius: 30px;background-color: gray;"
-                                    >
-                                </span>
-                                @elseif ($reservation instanceof \App\Models\Hotel)
-                                <span
-                                    x-data="{ status: '{{ $reservation->status }}' }"
-                                    x-text="status === 'pending' ? 'En Attente' : (status === 'validated' ? 'Validé' : 'Rejeté')"
-                                    @click="updateStatusHotel({{ $reservation->id }}, status)"
-                                    style="cursor:cursor-pointer;padding:1px 2px;border-radius: 30px;background-color: gray;"
-                                    >
-                                </span>
-                                @elseif ($reservation instanceof \App\Models\CarLocation)
-                                <div x-data="{ status: 'pending' }" x-init="updateStatusCarLocation({{ $reservation->id }}, status)">
+                                <div x-data="statusManager('{{ $reservation->id }}', '{{ get_class($reservation) }}', '{{ $reservation->status }}')">
                                     <button
-                                        @click="status = (status === 'pending' ? 'validated' : (status === 'validated' ? 'rejected' : 'pending')); updateStatusCarLocation({{$reservation->id}}, status)">
+                                        class="btn btn-sm"
+                                        :class="status === 'pending' ? 'btn-warning' : (status === 'validated' ? 'btn-success' : 'btn-danger')"
+                                        @click="updateStatus()">
                                         <span x-text="status === 'pending' ? 'En Attente' : (status === 'validated' ? 'Validé' : 'Rejeté')"></span>
                                     </button>
                                 </div>
-                                @endif
-
-                            </td>
+                            </td>                                                    
                             <td>
                                 <a href="{{ route('reservations.show', [$client, $reservation->id]) }}" class="btn btn-primary">
                                     <i class="fas fa-eye"></i> Voir
@@ -161,64 +112,54 @@
         </div>
     </div>
 </div>
+
 <script>
-        function updateStatusFlight(id, currentStatus)
-        {
-            let newStatus = currentStatus === 'pending' ? 'validated' : (currentStatus === 'validated' ? 'rejected' : 'pending');
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('statusManager', (id, type, initialStatus) => ({
+            status: initialStatus, // État initial du statut
 
-            fetch(`/reservations/${id}/update-status-flight`,  {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ status: newStatus })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Alpine.store('status', newStatus);
-                }
-            });
-        }
-        function updateStatusHotel(id, currentStatus)
-        {
-            let newStatus = currentStatus === 'pending' ? 'validated' : (currentStatus === 'validated' ? 'rejected' : 'pending');
+            updateStatus() {
+                const newStatus = this.status === 'pending' ? 'validated' :
+                                  (this.status === 'validated' ? 'rejected' : 'pending');
 
-            fetch(`/reservations/${id}/update-status-hotel`,  {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ status: newStatus })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Alpine.store('status', newStatus);
-                }
-            });
-        }
-        function updateStatusCarLocation(id, currentStatus)
-        {
-            console.log('Mis à jour pour la reservation ', id, ' avec le status ', currentStatus);
-            let newStatus = currentStatus === 'pending' ? 'validated' : (currentStatus === 'validated' ? 'rejected' : 'pending');
+                // API endpoint basé sur le type de réservation
+                let endpoint = '';
+                if (type.includes('Flight')) endpoint = `/reservations/${id}/update-status-flight`;
+                else if (type.includes('Hotel')) endpoint = `/reservations/${id}/update-status-hotel`;
+                else if (type.includes('CarLocation')) endpoint = `/reservations/${id}/update-status-car-location`;
 
-            fetch(`/reservations/${id}/update-status-car-location`,  {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ status: newStatus })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Alpine.store('status', newStatus);
-                }
-            });
-        }
+                // Envoyer la requête de mise à jour
+                fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Mettre à jour le statut localement
+                        this.status = newStatus;
+                        alert('Statut mis à jour avec succès !');
+                    } else {
+                        alert('Erreur lors de la mise à jour du statut.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur réseau ou serveur:', error);
+
+                    // Vérifier si le serveur a renvoyé une page HTML (erreur 500)
+                    if (error instanceof SyntaxError) {
+                        alert('Erreur serveur : vérifiez les logs Laravel.');
+                    } else {
+                        alert('Une erreur est survenue.');
+                    }
+                });
+            }
+        }));
+    });
 </script>
+
 @endsection

@@ -217,7 +217,6 @@ class ReservationController extends Controller
 
     public function updateStatusCarLocation(Request $request, $id)
     {
-        dd('yo');
         $reservation = CarLocation::findOrFail($id);
         $reservation->status = $request->status;
         $reservation->save();

@@ -22,5 +22,6 @@ Route::post('/reservations/{id}/update-status-flight', [ReservationController::c
 Route::post('/reservations/{id}/update-status-hotel', [ReservationController::class, 'updateStatusHotel']);
 Route::post('/reservations/{id}/update-status-car-location', [ReservationController::class, 'updateStatusCarLocation']);
 
+
 require __DIR__.'/auth.php';
 require __DIR__.'/backend.php';

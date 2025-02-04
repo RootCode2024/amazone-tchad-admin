@@ -26,7 +26,12 @@ Route::prefix('admin')->group(function () {
 Route::prefix('/admin/reservations')->group(function () {
     Route::get('/', [BackendReservationController::class, 'index'])->name('reservations.index');
     Route::get('/{client_id}/{reservation_id}', [BackendReservationController::class, 'show'])->name('reservations.show');
+    
 
+    Route::delete('/delete/vol/{id}', [BackendReservationController::class, 'destroyVol'])->name('reservations.delete.vol');
+    Route::get('/delete/hotel/{id}', [BackendReservationController::class, 'destroyHotel'])->name('reservations.delete.hotel');
+    Route::get('/delete/carlocation/{id}', [BackendReservationController::class, 'destroyCar'])->name('reservations.delete.carlocation');
+    
     // Routes pour récupérer les réservations par type
     Route::get('/fetchVols', [BackendReservationController::class, 'fetchReservations'])->name('reservations.fetchVols');
     Route::get('/fetchHotels', [BackendReservationController::class, 'fetchReservations'])->name('reservations.fetchHotels');

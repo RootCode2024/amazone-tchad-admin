@@ -16,12 +16,12 @@
                                         icon="cil-envelope-closed" />
 
                                     <div class="my-4 text-sm text-gray-600 dark:text-gray-400">
-                                        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
+                                        {{ __('Merci de vous  être inscrit ! Avant de commencer, pourriez-vous vérifier votre adresse e-mail en cliquant sur le lien que nous venons de vous envoyer par e-mail ? Si vous n avez pas reçu l e-mail, nous serons ravis de vous en envoyer un autre.') }}
                                     </div>
 
                                     @if (session('status') == 'verification-link-sent')
                                         @php
-                                            $msg = __('A new verification link has been sent to the email address you provided during registration.');
+                                            $msg = __('Un nouveau lien de vérification a  été envoyé sur l adresse e-mail que vous avez fournie lors de l inscription.');
                                         @endphp
                                         <x-auth-session-status class="mb-4 alert-info" :status="$msg" />
                                     @endif
@@ -30,7 +30,7 @@
 
                                     <div>
                                         <x-primary-button class="btn btn-success">
-                                            {{ __('Resend Verification Email') }}
+                                            {{ __('Revoyer le mail') }}
                                         </x-primary-button>
                                     </div>
                                 </form>
@@ -39,7 +39,7 @@
                                     @csrf
 
                                     <button type="submit" class="btn btn-link">
-                                        {{ __('Log Out') }}
+                                        {{ __('Déconnexion') }}
                                     </button>
                                 </form>
                             </div>

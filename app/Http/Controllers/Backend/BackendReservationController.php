@@ -21,7 +21,6 @@ class BackendReservationController extends Controller
 
     public function show($client_id, $reservation_id)
     {
-        // dd($reservation_id, $client_id);
         // Recherche d'une réservation parmi les différentes tables
         $reservation = Flight::where('client_id', $client_id)->with(['country', 'destination'])->find($reservation_id) 
                     ?? Hotel::where('client_id', $client_id)->find($reservation_id) 
@@ -84,7 +83,7 @@ class BackendReservationController extends Controller
     /**
      * Supprime un client
      */
-    public function destroyHotels($id)
+    public function destroyHotel($id)
     {
         $hotel = Hotel::findOrFail($id);
         $hotel->delete();
@@ -116,7 +115,7 @@ class BackendReservationController extends Controller
     /**
      * Supprime un vol
      */
-    public function destroyFLight($id)
+    public function destroyVol($id)
     {
         $flight = Flight::findOrFail($id);
         $flight->delete();
@@ -165,7 +164,7 @@ class BackendReservationController extends Controller
     /**
      * Supprime une Reservation de voiture
      */
-    public function destroyLocation($id)
+    public function destroyCar($id)
     {
         $car = CarLocation::findOrFail($id);
         $car->delete();
