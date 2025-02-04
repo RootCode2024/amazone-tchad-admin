@@ -50,7 +50,7 @@
                         Messages<span class="badge badge-sm bg-success ms-2">42</span>
                     </a>
 
-                    <a class="dropdown-item" href="#">
+                    <a class="dropdown-item" href="#"> 
 
                         <x-coreui-icon class="icon me-2" icon="cil-task" />
                         Tasks<span class="badge badge-sm bg-success ms-2">42</span>
