@@ -14,12 +14,5 @@ Route::post('/reservations/hotel', [ReservationController::class, 'storeHotel'])
 Route::post('/reservations/volhotel', [ReservationController::class, 'storeFlightHotel'])->name('reservations.store.volhotel');
 Route::post('/reservations/carlocation', [ReservationController::class, 'storeCarLocation'])->name('reservations.store.location');
 
-
-
-Route::post('/reservations/{id}/update-status-flight', [ReservationController::class, 'updateStatusFlight']);
-Route::post('/reservations/{id}/update-status-hotel', [ReservationController::class, 'updateStatusHotel']);
-Route::post('/reservations/{id}/update-status-car-location', [ReservationController::class, 'updateStatusCarLocation']);
-
-
 require __DIR__.'/auth.php';
 require __DIR__.'/backend.php';

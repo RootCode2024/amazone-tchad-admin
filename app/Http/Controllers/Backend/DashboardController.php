@@ -35,4 +35,11 @@ class DashboardController extends Controller
         return view('backend.dashboard', compact('users', 'clients', 'reservations', 'reservationsPendding'));
     }
 
+    public function users()
+    {
+        $users = User::all();
+
+        return view('backend.users.index', compact('users'));
+    }
+
 }

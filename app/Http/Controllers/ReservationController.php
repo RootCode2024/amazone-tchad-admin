@@ -132,7 +132,7 @@ class ReservationController extends Controller
         $reservation->save();
 
         // Démarrer un délai de 10 secondes avant d'envoyer l'email
-        SendReservationStatusEmail::dispatch($reservation)->delay(now()->addSeconds(10));
+        // SendReservationStatusEmail::dispatch($reservation)->delay(now()->addSeconds(10));
 
         return response()->json(['success' => true, 'newStatus' => $reservation->status]);
     }

@@ -116,7 +116,7 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('statusManager', (id, type, initialStatus) => ({
-            status: initialStatus, // État initial du statut
+            status: initialStatus,
 
             updateStatus() {
                 const newStatus = this.status === 'pending' ? 'validated' :
@@ -124,11 +124,11 @@
 
                 // API endpoint basé sur le type de réservation
                 let endpoint = '';
-                if (type.includes('Flight')) endpoint = `/reservations/${id}/update-status-flight`;
-                else if (type.includes('Hotel')) endpoint = `/reservations/${id}/update-status-hotel`;
-                else if (type.includes('CarLocation')) endpoint = `/reservations/${id}/update-status-car-location`;
+                if (type.includes('Flight')) endpoint = `/admin/reservations/${id}/update-status-flight`;
+                else if (type.includes('Hotel')) endpoint = `/admin/reservations/${id}/update-status-hotel`;
+                else if (type.includes('CarLocation')) endpoint = `/admin/reservations/${id}/update-status-car-location`;
 
-                // Envoyer la requête de mise à jour
+                // Envoie de la requête de mise à jour
                 fetch(endpoint, {
                     method: 'POST',
                     headers: {
