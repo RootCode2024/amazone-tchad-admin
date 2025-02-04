@@ -63,7 +63,7 @@ class ReservationService
     public function sendReservationEmail($reservation)
     {
         try {
-            Mail::to('chist.djigalnodji@gmail.com')->send(new NewReservationNotification($reservation));
+            Mail::to('chist.djigamnodji@gmail.com')->send(new NewReservationNotification($reservation));
         } catch (\Exception $e) {
             Log::error("Erreur d'envoi d'email : " . $e->getMessage());
         }
