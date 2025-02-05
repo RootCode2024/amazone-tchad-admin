@@ -9,7 +9,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb my-0 ms-2">
             <li class="breadcrumb-item"><a href="{{ route('clients.index') }}">Clients</a></li>
-            <li class="breadcrumb-item"><a href="#">Réservations</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('reservations.index') }}">Réservations</a></li>
             <li class="breadcrumb-item active"><span>Détails</span></li>
         </ol>
     </nav>
@@ -111,7 +111,7 @@
 
             <div class="text-center mt-4">
                 <a href="{{ route('clients.index') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Retour
+                    <i class="fas fa-arrow-left"></i> Retour liste des clients
                 </a>
             </div>
         </div>

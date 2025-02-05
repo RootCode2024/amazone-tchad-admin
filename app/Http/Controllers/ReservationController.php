@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CarLocation;
+use DateTime;
+use App\Models\Hotel;
 use App\Models\Client;
 use App\Models\Flight;
-use App\Models\Hotel;
+use App\Models\CarLocation;
 use Illuminate\Http\Request;
-use DateTime;
 use App\Services\ReservationService;
+use App\Mail\SendReservationStatusEmail;
 
 
 class ReservationController extends Controller
@@ -131,8 +132,7 @@ class ReservationController extends Controller
         $reservation->status = $request->status;
         $reservation->save();
 
-        // Démarrer un délai de 10 secondes avant d'envoyer l'email
-        // SendReservationStatusEmail::dispatch($reservation)->delay(now()->addSeconds(10));
+        SendReservationStatusEmail::dispatch($reservation)->delay(now()->addSeconds(10));
 
         return response()->json(['success' => true, 'newStatus' => $reservation->status]);
     }
@@ -143,6 +143,8 @@ class ReservationController extends Controller
         $reservation->status = $request->status;
         $reservation->save();
 
+        SendReservationStatusEmail::dispatch($reservation)->delay(now()->addSeconds(10));
+
         return response()->json(['success' => true, 'newStatus' => $reservation->status]);
     }
 
@@ -152,6 +154,8 @@ class ReservationController extends Controller
         $reservation = CarLocation::findOrFail($id);
         $reservation->status = $request->status;
         $reservation->save();
+        
+        SendReservationStatusEmail::dispatch($reservation)->delay(now()->addSeconds(10));
 
         return response()->json(['success' => true, 'newStatus' => $reservation->status]);
     }

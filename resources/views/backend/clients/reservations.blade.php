@@ -92,17 +92,19 @@
                                     <td x-text="formatDate(reservation.created_at)"></td>
 
                                     <td class="text-center">
-                                        <span class="badge"
-                                            :class="{
-                                                'bg-warning text-dark': reservation.status === 'pending',
-                                                'bg-success': reservation.status === 'validated',
-                                                'bg-danger': reservation.status === 'rejected'
-                                            }"
-                                            x-text="reservation.status === 'pending' ? 'En attente' :
-                                                    (reservation.status === 'validated' ? 'Validée' : 'Rejetée')">
-                                        </span>
+                                        <button @click="updateStatus(reservation.id)" class="btn btn-sm">
+                                            <span class="badge"
+                                                :class="{
+                                                    'bg-warning text-dark': reservation.status === 'pending',
+                                                    'bg-success': reservation.status === 'validated',
+                                                    'bg-danger': reservation.status === 'rejected'
+                                                }"
+                                                x-text="reservation.status === 'pending' ? 'En attente' :
+                                                        (reservation.status === 'validated' ? 'Validée' : 'Rejetée')">
+                                            </span>
+                                        </button>
+                                        
                                     </td>
-
                                     <td class="text-center">
                                         <button class="btn btn-outline-primary btn-sm" @click="voirReservation(reservation.id)">
                                             <i class="fas fa-eye"></i> Voir
@@ -354,7 +356,7 @@
             reservations: { data: [], total: 0, per_page: 5, current_page: 1, last_page: 1 },
             totalPages: 1,
             typeReservationModel: 'vols',
-            baseUrl: '/admin/reservations/',
+            baseUrl: `${window.location.origin}/admin/reservations/`,
     
             init() {
                 this.fetchReservationsForType();
@@ -405,10 +407,10 @@
                 if (!confirm('Voulez-vous vraiment supprimer cette réservation ?')) return;
     
                 let url = '';
-                if (type === 'flight') url = `/admin/reservations/delete/flight/${id}`;
-                else if (type === 'hotel') url = `/admin/reservations/delete/hotel/${id}`;
-                else if (type === 'volhotel') url = `/admin/reservations/delete/volhotel/${id}`;
-                else if (type === 'location') url = `/admin/reservations/delete/location/${id}`;
+                if (type === 'flight') url = `${window.location.origin}/admin/reservations/delete/flight/${id}`;
+                else if (type === 'hotel') url = `${window.location.origin}/admin/reservations/delete/hotel/${id}`;
+                else if (type === 'volhotel') url = `${window.location.origin}/admin/reservations/delete/volhotel/${id}`;
+                else if (type === 'location') url = `${window.location.origin}/admin/reservations/delete/location/${id}`;
     
                 axios.delete(url, {
                     headers: {
@@ -426,19 +428,19 @@
             },
     
             voirReservation(id) {
-                window.location.href = `/admin/reservations/flight/${id}`;
+                window.location.href = `${window.location.origin}/admin/reservations/flight/${id}`;
             },
     
             voirReservationHotel(id) {
-                window.location.href = `/admin/reservations/hotel/${id}`;
+                window.location.href = `${window.location.origin}/admin/reservations/hotel/${id}`;
             },
     
             voirReservationVolHotel(id) {
-                window.location.href = `/admin/reservations/volhotel/${id}`;
+                window.location.href = `${window.location.origin}/admin/reservations/volhotel/${id}`;
             },
     
             voirReservationLocation(id) {
-                window.location.href = `/admin/reservations/location/${id}`;
+                window.location.href = `${window.location.origin}/admin/reservations/location/${id}`;
             },
     
             jumpToPage(page) {

@@ -124,9 +124,9 @@
 
                 // API endpoint basé sur le type de réservation
                 let endpoint = '';
-                if (type.includes('Flight')) endpoint = `/admin/reservations/${id}/update-status-flight`;
-                else if (type.includes('Hotel')) endpoint = `/admin/reservations/${id}/update-status-hotel`;
-                else if (type.includes('CarLocation')) endpoint = `/admin/reservations/${id}/update-status-car-location`;
+                if (type.includes('Flight')) endpoint = `${window.location.origin}/admin/reservations/${id}/update-status-flight`;
+                else if (type.includes('Hotel')) endpoint = `${window.location.origin}/admin/reservations/${id}/update-status-hotel`;
+                else if (type.includes('CarLocation')) endpoint = `${window.location.origin}/admin/reservations/${id}/update-status-car-location`;
 
                 // Envoie de la requête de mise à jour
                 fetch(endpoint, {

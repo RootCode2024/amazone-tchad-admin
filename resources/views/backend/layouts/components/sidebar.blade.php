@@ -3,9 +3,9 @@
         <div class="sidebar-brand-full" width="118" height="46" alt="Amazone Tchad Logo">
             <img src="{{ asset('assets/img/logo.png') }}" width="150" height="auto" />
         </div>
-        <svg class="sidebar-brand-narrow" width="46" height="46" alt="CoreUI Logo">
-            <use xlink:href="{{ asset('assets/brand/coreui.svg#signet') }}"></use>
-        </svg>
+        <div class="sidebar-brand-narrow" width="46" height="46" alt="CoreUI Logo">
+            <img src="{{ asset('assets/img/logo.png') }}" width="150" height="auto" />
+        </div>
     </div>
     <ul class="sidebar-nav" data-coreui="navigation" data-simplebar>
         <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">
