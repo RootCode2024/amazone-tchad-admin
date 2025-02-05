@@ -69,7 +69,7 @@
                                 @endif
                             </td>
                             <td>
-                                {{ (\App\Models\Airport::where("id", $reservation->destination)->first())->country }}
+                                {{ (\App\Models\Airport::where("id", $reservation->destination)->first())->country ?? '' }}
                             </td>
                             <td>
                                 <span>

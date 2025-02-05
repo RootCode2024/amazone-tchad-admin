@@ -13,11 +13,11 @@ class CarLocation extends Model
 
     public function client()
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(Client::class, 'client_id');
     }
 
     public function country()
     {
-        return $this->belongsTo(Airport::class, 'place_of_location');
+        return $this->belongsTo(Airport::class, 'country');
     }
 }

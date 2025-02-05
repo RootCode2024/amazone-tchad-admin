@@ -1,11 +1,15 @@
 <div class="sidebar sidebar-dark sidebar-fixed" id="sidebar">
     <div class="sidebar-brand d-none d-md-flex">
-        <div class="sidebar-brand-full" width="118" height="46" alt="Amazone Tchad Logo">
-            <img src="{{ asset('assets/img/logo.png') }}" width="150" height="auto" />
-        </div>
-        <div class="sidebar-brand-narrow" width="46" height="46" alt="CoreUI Logo">
-            <img src="{{ asset('assets/img/logo.png') }}" width="150" height="auto" />
-        </div>
+        <a href="{{ route('dashboard') }}">    
+            <div class="sidebar-brand-full" width="118" height="46" alt="Amazone Tchad Logo">
+                <img src="{{ asset('assets/img/logo.png') }}" width="150" height="auto" />
+            </div>
+        </a>
+        <a href="{{ route('dashboard') }}">
+            <div class="sidebar-brand-narrow" width="46" height="46" alt="CoreUI Logo">
+                <img src="{{ asset('assets/img/logo.png') }}" width="150" height="auto" />
+            </div>
+        </a>
     </div>
     <ul class="sidebar-nav" data-coreui="navigation" data-simplebar>
         <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">
@@ -27,12 +31,6 @@
                     <a class="nav-link" href="{{ route('reservations.index') }}">
                         <x-coreui-icon class="nav-icon" icon="cil-list" />
                         Liste reservations
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.profile.edit') }}">
-                        <x-coreui-icon class="nav-icon" icon="cil-trash" />
-                        Corbeille
                     </a>
                 </li>
             </ul>

@@ -7,6 +7,7 @@ use App\Models\Flight;
 use App\Models\Hotel;
 use App\Models\CarLocation;
 use App\Mail\NewReservationNotification;
+use App\Mail\SendReservationStatusEmail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use DateTime;
@@ -63,7 +64,17 @@ class ReservationService
     public function sendReservationEmail($reservation)
     {
         try {
-            Mail::to(config('app.mail'))->send(new NewReservationNotification($reservation));
+            Mail::to(env('APP_EMAIL'))->send(new NewReservationNotification($reservation));
+        } catch (\Exception $e) {
+            Log::error("Erreur d'envoi d'email : " . $e->getMessage());
+        }
+    }
+
+    
+    public function sendReservationStatusChange($reservation)
+    {
+        try {
+            Mail::to(env('APP_EMAIL'))->send(new SendReservationStatusEmail($reservation));
         } catch (\Exception $e) {
             Log::error("Erreur d'envoi d'email : " . $e->getMessage());
         }

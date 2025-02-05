@@ -23,6 +23,7 @@ Route::prefix('admin')->group(function () {
 });
 
 
+Route::get('/admin/clients/{id}/details', [BackendReservationController::class, 'clientDetails'])->name('client.details');
 
 // Routes pour les réservations
 
@@ -34,7 +35,9 @@ Route::prefix('/admin/reservations')->middleware('auth')->group(function () {
     // Routes pour récupérer les réservations par type
     Route::get('/fetchVols', [BackendReservationController::class, 'fetchReservations'])->name('reservations.fetchVols');
     Route::get('/fetchHotels', [BackendReservationController::class, 'fetchReservations'])->name('reservations.fetchHotels');
-    Route::get('/fetchVolsHotels', [BackendReservationController::class, 'fetchReservations'])->name('reservations.fetchVolsHotels');
+
+
+    // Route::get('/fetchVolsHotels', [BackendReservationController::class, 'fetchReservations'])->name('reservations.fetchVolsHotels');
     Route::get('/fetchLocations', [BackendReservationController::class, 'fetchReservations'])->name('reservations.fetchLocations');
     
     // Routes pour mis à jour du status des reservations
@@ -44,8 +47,8 @@ Route::prefix('/admin/reservations')->middleware('auth')->group(function () {
     
     //Routes pour supprimer des reservations
     Route::delete('/delete/flight/{id}', [BackendReservationController::class, 'destroyvol']);
-    Route::delete('/delete/hotel/{id}', [BackendReservationController::class, 'deleteHotel']);
-    Route::delete('/delete/carlocation/{id}', [BackendReservationController::class, 'deleteCarLocation']);
+    Route::delete('/delete/hotel/{id}', [BackendReservationController::class, 'destroyHotel']);
+    Route::delete('/delete/carlocation/{id}', [BackendReservationController::class, 'destroyCar']);
 });
 
 

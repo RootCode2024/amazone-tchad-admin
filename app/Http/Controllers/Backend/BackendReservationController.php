@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend;
 
 use Route;
 use App\Models\Hotel;
+use App\Models\Client;
 use App\Models\Flight;
 use App\Models\CarLocation;
 use Illuminate\Http\Request;
@@ -18,6 +19,29 @@ class BackendReservationController extends Controller
     {
         return view('backend.clients.reservations');
     }
+
+    public function clientDetails($id)
+    {
+        $client = Client::find($id);
+    
+        if (!$client) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Client introuvable'
+            ], 404);
+        }
+    
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $client->id,
+                'name' => $client->firstname . ' ' . $client->lastname,
+                'phone' => $client->phone,
+                'email' => $client->email ?? 'Non renseigné'
+            ]
+        ], 200);
+    }
+    
 
     public function show($client_id, $reservation_id)
     {
@@ -41,7 +65,6 @@ class BackendReservationController extends Controller
         return view('backend.clients.detailsreservation', compact('reservation', 'type'));
     }
     
-    
 
     public function fetchReservations(Request $request)
     {
@@ -62,24 +85,23 @@ class BackendReservationController extends Controller
         }
     
         return response()->json($results);
-    }
-    
-    
+    }  
+
+
     //HOTELS
+
     public function fetchHotels(Request $request)
     {
         $perPage = $request->get('per_page', 5);
         $currentPage = $request->get('page', 1);
         
-        $hotels = Hotel::whereHas('client', function($query) {
-                            $query->where('type_of_reservation', 'hotel');
-                        })
+        $hotels = Hotel::with(['client', 'country'])
                         ->orderBy('created_at', 'desc')
                         ->paginate($perPage, ['*'], 'page', $currentPage);
 
         return $hotels;
     }
-    
+
     /**
      * Supprime un client
      */
@@ -91,7 +113,6 @@ class BackendReservationController extends Controller
         return response()->json(['message' => 'Réservation Hotel supprimé avec succès']);
     }
 
-
     //VOLS
 
     /**
@@ -102,10 +123,7 @@ class BackendReservationController extends Controller
         $perPage = $request->get('per_page', 5);
         $currentPage = $request->get('page', 1);
     
-        $flights = Flight::whereHas('client', function($query) {
-                                    $query->where('type_of_reservation', 'flight');
-                                })
-                                ->with(['client', 'countries', 'destinations'])
+        $flights = Flight::with(['client', 'countries', 'destinations'])
                                 ->orderBy('created_at', 'desc')
                                 ->paginate($perPage, ['*'], 'page', $currentPage);
     
@@ -123,41 +141,41 @@ class BackendReservationController extends Controller
         return response()->json(['message' => 'Réservation Vol supprimé avec succès']);
     }
 
-
-    //VOLS + HOTELS
-
-    public function fetchVolsHotels(Request $request) 
-    {
-        $perPage = $request->get('per_page', 5);
-        $currentPage = $request->get('page', 1);
-    
-        $flights = Flight::with(['hotel' => function($query) {
-                            $query->select('id', 'number_of_room');
-                        }])
-                        ->whereHas('client', function($query) {
-                            $query->where('type_of_reservation', 'flight_hotel');
-                        })
-                        ->orderBy('created_at', 'desc')
-                        ->paginate($perPage, ['*'], 'page', $currentPage);
-    
-        return $flights;
-    }
     
     //LOCATION DE VOITURE
 
     /**
      * Récupère les clients qui ont reservés une voiture en JSON pour l'affichage dynamique
      */
-    public function fetchLocation(Request $request)
+    public function fetchLocations(Request $request) 
     {
-        $perPage = $request->get('per_page', 5);
-        $currentPage = $request->get('page', 1);
+        try {
+            $perPage = (int) $request->get('per_page', 5);
+            $currentPage = (int) $request->get('page', 1);
     
-        $location = CarLocation::orderBy('created_at', 'desc')
-                       ->paginate($perPage, ['*'], 'page', $currentPage);
+            // Charger les locations avec les infos nécessaires
+            $reservations = CarLocation::with([
+                    'client:id,firstname,lastname'
+                ])
+                ->orderBy('created_at', 'desc')
+                ->paginate($perPage, ['id', 'age', 'client_id', 'created_at', 'status'], 'page', $currentPage);
     
-        return $location;
+            return response()->json([
+                'success' => true,
+                'message' => 'Liste des locations de voitures',
+                'data' => $reservations->toArray()
+            ], 200);
+    
+        } catch (\Exception $e) {
+            // Retourne une erreur JSON détaillée pour le front-end
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des locations',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+    
 
     /**
      * Supprime une Reservation de voiture

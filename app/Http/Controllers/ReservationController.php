@@ -131,8 +131,8 @@ class ReservationController extends Controller
         $reservation = Flight::findOrFail($id);
         $reservation->status = $request->status;
         $reservation->save();
-
-        SendReservationStatusEmail::dispatch($reservation)->delay(now()->addSeconds(10));
+        
+        $this->reservationService->sendReservationStatusChange($reservation);
 
         return response()->json(['success' => true, 'newStatus' => $reservation->status]);
     }
@@ -143,7 +143,7 @@ class ReservationController extends Controller
         $reservation->status = $request->status;
         $reservation->save();
 
-        SendReservationStatusEmail::dispatch($reservation)->delay(now()->addSeconds(10));
+        $this->reservationService->sendReservationStatusChange($reservation);
 
         return response()->json(['success' => true, 'newStatus' => $reservation->status]);
     }
@@ -155,7 +155,7 @@ class ReservationController extends Controller
         $reservation->status = $request->status;
         $reservation->save();
         
-        SendReservationStatusEmail::dispatch($reservation)->delay(now()->addSeconds(10));
+        $this->reservationService->sendReservationStatusChange($reservation);
 
         return response()->json(['success' => true, 'newStatus' => $reservation->status]);
     }

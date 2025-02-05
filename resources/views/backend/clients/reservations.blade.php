@@ -25,7 +25,6 @@
         <select name="typeReservation" id="typeReservation" x-model="typeReservationModel" @change="updateTable()">
             <option value="vols">Vols</option>
             <option value="hotels">Hôtels</option>
-            <option value="volshotels">Vols + Hôtels</option>
             <option value="locations">Locations de voitures</option>
         </select>
 
@@ -92,21 +91,17 @@
                                     <td x-text="formatDate(reservation.created_at)"></td>
 
                                     <td class="text-center">
-                                        <button @click="updateStatus(reservation.id)" class="btn btn-sm">
-                                            <span class="badge"
-                                                :class="{
-                                                    'bg-warning text-dark': reservation.status === 'pending',
-                                                    'bg-success': reservation.status === 'validated',
-                                                    'bg-danger': reservation.status === 'rejected'
-                                                }"
-                                                x-text="reservation.status === 'pending' ? 'En attente' :
-                                                        (reservation.status === 'validated' ? 'Validée' : 'Rejetée')">
-                                            </span>
-                                        </button>
-                                        
+                                        <div x-data="statusManager(reservation.id, 'flight', reservation.status)">
+                                            <button @click="updateStatus(reservation.id)" 
+                                                    class="btn btn-sm" 
+                                                    :class="status === 'pending' ? 'btn-warning' : (status === 'validated' ? 'btn-success' : 'btn-danger')"
+                                                    >
+                                                    <span x-text="status === 'pending' ? 'En Attente' : (status === 'validated' ? 'Validé' : 'Rejeté')"></span>
+                                            </button>
+                                        </div>
                                     </td>
                                     <td class="text-center">
-                                        <button class="btn btn-outline-primary btn-sm" @click="voirReservation(reservation.id)">
+                                        <button class="btn btn-outline-primary btn-sm" @click="voirReservation(reservation.client_id, reservation.id)">
                                             <i class="fas fa-eye"></i> Voir
                                         </button>
                                         <button class="btn btn-outline-danger btn-sm" @click="supprimerReservation('flight', reservation.id)">
@@ -148,9 +143,8 @@
                         <thead class="table-dark">
                             <tr>
                                 <th>#</th>
-                                <th>Client</th>
+                                <th>ID Client</th>
                                 <th>Chambre</th>
-                                <th>Téléphone</th>
                                 <th>Date de la demande</th>
                                 <th>Statut</th>
                                 <th>Actions</th>
@@ -160,21 +154,25 @@
                             <template x-for="reservation in reservations.data" :key="reservation.id">
                                 <tr>
                                     <td x-text="reservation.id"></td>
-                                    <td>
-                                        <span x-init="console.log(reservation.client)" x-text="reservation.client ? reservation.client.firstname : 'Non disponible'"></span>
+                                    <td x-data="{ clientName: 'Chargement...' }" 
+                                        x-init="fetchClientInfos(reservation.client_id).then(name => clientName = name)">
+                                        <span x-text="clientName"></span>
                                     </td>
-                                    
-                                    
+
                                     <td x-text="reservation.number_of_room"></td>
-                                    <td x-text="reservation.client_id"></td>
                                     <td x-text="formatDate(reservation.created_at)"></td>
-                                    <td>
-                                        <span class="badge" 
-                                              :class="reservation.status === 'pending' ? 'bg-warning text-dark' : 'bg-danger'" 
-                                              x-text="reservation.status === 'pending' ? 'En attente' : 'Rejetée'"></span>
+                                    <td class="text-center">
+                                        <div x-data="statusManager(reservation.id, 'hotel', reservation.status)">
+                                            <button @click="updateStatus(reservation.id)" 
+                                                    class="btn btn-sm" 
+                                                    :class="status === 'pending' ? 'btn-warning' : (status === 'validated' ? 'btn-success' : 'btn-danger')"
+                                                    >
+                                                    <span x-text="status === 'pending' ? 'En Attente' : (status === 'validated' ? 'Validé' : 'Rejeté')"></span>
+                                            </button>
+                                        </div>
                                     </td>
-                                    <td>
-                                        <button class="btn btn-outline-primary btn-sm" @click="voirReservationHotel(reservation.id)">
+                                    <td class="text-center">
+                                        <button class="btn btn-outline-primary btn-sm" @click="voirReservation(reservation.client_id, reservation.id)">
                                             <i class="fas fa-eye"></i> Voir
                                         </button>
                                         <button class="btn btn-outline-danger btn-sm" @click="supprimerReservation('hotel', reservation.id)">
@@ -209,77 +207,6 @@
                 </div>
             </template>
 
-            <!-- Tableau pour Vols + Hôtels -->
-            <template x-if="typeReservationModel === 'volshotels'">
-                <div>
-                    <table class="table table-bordered">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>#</th>
-                                <th>Vol / Hôtel</th>
-                                <th>Client</th>
-                                <th>Téléphone</th>
-                                <th>Date de la demande</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="reservation in reservations.data" :key="reservation.id">
-                                <tr>
-                                    <td x-text="reservation.id"></td>
-                                    <td>
-                                        <div>
-                                            <strong>Vol :</strong> <span x-text="reservation.flight_number"></span><br>
-                                            <strong>Hôtel :</strong> <span x-text="reservation.hotel_name"></span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="fw-bold" x-text="reservation.client ? reservation.client.firstname : ''"></span>
-                                        <span x-text="reservation.client ? reservation.client.lastname : ''"></span>
-                                    </td>
-                                    <td x-text="reservation.client ? reservation.client.phone : ''"></td>
-                                    <td x-text="formatDate(reservation.created_at)"></td>
-                                    <td>
-                                        <span class="badge" 
-                                              :class="reservation.status === 'pending' ? 'bg-warning text-dark' : 'bg-danger'" 
-                                              x-text="reservation.status === 'pending' ? 'En attente' : 'Rejetée'"></span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-outline-primary btn-sm" @click="voirReservationVolHotel(reservation.id)">
-                                            <i class="fas fa-eye"></i> Voir
-                                        </button>
-                                        <button class="btn btn-outline-danger btn-sm" @click="supprimerReservation('volhotel', reservation.id)">
-                                            <i class="fas fa-trash"></i> Supprimer
-                                        </button>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-
-                    <!-- Pagination -->
-                    <nav class="mt-3">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item" :class="{ 'disabled': !reservations.prev_page_url }">
-                                <button class="page-link" @click="fetchReservations(reservations.prev_page_url)">
-                                    <i class="fas fa-chevron-left"></i> Précédent
-                                </button>
-                            </li>
-                            <template x-for="page in totalPages" :key="page">
-                                <li class="page-item" :class="{ 'active': reservations.current_page === page }">
-                                    <button class="page-link" @click="jumpToPage(page)" x-text="page"></button>
-                                </li>
-                            </template>
-                            <li class="page-item" :class="{ 'disabled': !reservations.next_page_url }">
-                                <button class="page-link" @click="fetchReservations(reservations.next_page_url)">
-                                    Suivant <i class="fas fa-chevron-right"></i>
-                                </button>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </template>
 
             <!-- Tableau pour Locations de voitures -->
             <template x-if="typeReservationModel === 'locations'">
@@ -288,8 +215,8 @@
                         <thead class="table-dark">
                             <tr>
                                 <th>#</th>
-                                <th>Véhicule</th>
                                 <th>Client</th>
+                                <th>Age</th>
                                 <th>Téléphone</th>
                                 <th>Date de la demande</th>
                                 <th>Statut</th>
@@ -299,24 +226,22 @@
                         <tbody>
                             <template x-for="reservation in reservations.data" :key="reservation.id">
                                 <tr>
-                                    <td x-text="reservation.id"></td>
-                                    <td x-text="reservation.car_model"></td>
+                                    <td>4</td>
                                     <td>
-                                        <span class="fw-bold" x-text="reservation.client ? reservation.client.firstname : ''"></span>
-                                        <span x-text="reservation.client ? reservation.client.lastname : ''"></span>
+                                        <span class="fw-bold">r</span>
+                                        <span >e</span>
                                     </td>
-                                    <td x-text="reservation.client ? reservation.client.phone : ''"></td>
-                                    <td x-text="formatDate(reservation.created_at)"></td>
+                                    <td >e</td>
+                                    <td >e</td>
+                                    <td >e</td>
                                     <td>
-                                        <span class="badge" 
-                                              :class="reservation.status === 'pending' ? 'bg-warning text-dark' : 'bg-danger'" 
-                                              x-text="reservation.status === 'pending' ? 'En attente' : 'Rejetée'"></span>
+                                        e
                                     </td>
-                                    <td>
-                                        <button class="btn btn-outline-primary btn-sm" @click="voirReservationLocation(reservation.id)">
+                                    <td class="text-center">
+                                        <button class="btn btn-outline-primary btn-sm" @click="voirReservation(reservation.client_id, reservation.id)">
                                             <i class="fas fa-eye"></i> Voir
                                         </button>
-                                        <button class="btn btn-outline-danger btn-sm" @click="supprimerReservation('location', reservation.id)">
+                                        <button class="btn btn-outline-danger btn-sm" @click="supprimerReservation('carlocation', reservation.id)">
                                             <i class="fas fa-trash"></i> Supprimer
                                         </button>
                                     </td>
@@ -351,110 +276,182 @@
     </div>
     
     <script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('reservationTable', () => ({
-            reservations: { data: [], total: 0, per_page: 5, current_page: 1, last_page: 1 },
-            totalPages: 1,
-            typeReservationModel: 'vols',
-            baseUrl: `${window.location.origin}/admin/reservations/`,
-    
-            init() {
-                this.fetchReservationsForType();
-            },
-    
-            updateTable() {
-                this.reservations.current_page = 1;
-                this.fetchReservationsForType();
-            },
-    
-            getApiEndpoint() {
-                const endpoints = {
-                    vols: `${this.baseUrl}fetchVols`,
-                    hotels: `${this.baseUrl}fetchHotels`,
-                    volshotels: `${this.baseUrl}fetchVolsHotels`,
-                    locations: `${this.baseUrl}fetchLocations`
-                };
-                return endpoints[this.typeReservationModel] || this.baseUrl;
-            },
-    
-            fetchReservationsForType() {
-                const endpoint = this.getApiEndpoint();
-                if (!endpoint) {
-                    console.error("Endpoint introuvable pour le type de réservation :", this.typeReservationModel);
-                    return;
-                }
-                this.fetchReservations(endpoint);
-            },
-    
-            fetchReservations(url) {
-                axios.get(url, {
-                    params: {
-                        page: this.reservations.current_page,
-                        per_page: this.reservations.per_page
-                    }
-                })
-                .then(response => {
-                    this.reservations = response.data;
-                    this.totalPages = this.reservations.last_page;
-                })
-                .catch(error => {
-                    console.error("Erreur lors du chargement des réservations :", error);
-                    alert("Une erreur est survenue lors du chargement des réservations.");
-                });
-            },
-    
-            supprimerReservation(type, id) {
-                if (!confirm('Voulez-vous vraiment supprimer cette réservation ?')) return;
-    
-                let url = '';
-                if (type === 'flight') url = `${window.location.origin}/admin/reservations/delete/flight/${id}`;
-                else if (type === 'hotel') url = `${window.location.origin}/admin/reservations/delete/hotel/${id}`;
-                else if (type === 'volhotel') url = `${window.location.origin}/admin/reservations/delete/volhotel/${id}`;
-                else if (type === 'location') url = `${window.location.origin}/admin/reservations/delete/location/${id}`;
-    
-                axios.delete(url, {
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                })
-                .then(() => {
-                    alert("Réservation supprimée avec succès !");
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('reservationTable', () => ({
+                reservations: { data: [], total: 0, per_page: 5, current_page: 1, last_page: 1 },
+                totalPages: 1,
+                typeReservationModel: 'vols',
+                baseUrl: `${window.location.origin}/admin/reservations/`,
+                clientInfos: {}, 
+                isLoading: false,
+
+                init() {
+                    console.log("Initialisation du composant...");
                     this.fetchReservationsForType();
-                })
-                .catch(error => {
-                    console.error("Erreur lors de la suppression :", error);
-                    alert("Une erreur est survenue lors de la suppression.");
-                });
-            },
-    
-            voirReservation(id) {
-                window.location.href = `${window.location.origin}/admin/reservations/flight/${id}`;
-            },
-    
-            voirReservationHotel(id) {
-                window.location.href = `${window.location.origin}/admin/reservations/hotel/${id}`;
-            },
-    
-            voirReservationVolHotel(id) {
-                window.location.href = `${window.location.origin}/admin/reservations/volhotel/${id}`;
-            },
-    
-            voirReservationLocation(id) {
-                window.location.href = `${window.location.origin}/admin/reservations/location/${id}`;
-            },
-    
-            jumpToPage(page) {
-                this.reservations.current_page = page;
-                this.fetchReservationsForType();
-            },
-    
-            formatDate(dateString) {
-                if (!dateString) return "Non disponible";
-                const options = { year: 'numeric', month: 'long', day: 'numeric' };
-                return new Date(dateString).toLocaleDateString('fr-FR', options);
-            }
-        }));
-    });
+                },
+
+                updateTable() {
+                    console.log("Mise à jour du tableau pour :", this.typeReservationModel);
+                    this.reservations.current_page = 1;
+                    this.fetchReservationsForType();
+                },
+
+                getApiEndpoint() {
+                    const endpoints = {
+                        vols: `${this.baseUrl}fetchVols`,
+                        hotels: `${this.baseUrl}fetchHotels`,
+                        locations: `${this.baseUrl}fetchLocations`
+                    };
+                    return endpoints[this.typeReservationModel] || this.baseUrl;
+                },
+
+                fetchReservationsForType() {
+                    console.log("Fetching reservations for type:", this.typeReservationModel);
+                    const endpoint = this.getApiEndpoint();
+                    if (!endpoint) {
+                        console.error("Endpoint introuvable pour le type de réservation :", this.typeReservationModel);
+                        return;
+                    }
+                    this.fetchReservations(endpoint);
+                },
+
+                fetchReservations(url) {
+                    this.isLoading = true; // Active le chargement
+                    console.log("Appel API :", url);
+
+                    axios.get(url, {
+                        params: {
+                            page: this.reservations.current_page,
+                            per_page: this.reservations.per_page
+                        }
+                    })
+                    .then(response => {
+                        console.log("Données reçues :", response.data);
+                        this.reservations = response.data;
+                        this.totalPages = this.reservations.last_page;
+                    })
+                    .catch(error => {
+                        console.error("Erreur lors du chargement des réservations :", error);
+                        alert("Une erreur est survenue lors du chargement des réservations.");
+                    })
+                    .finally(() => {
+                        this.isLoading = false; // Désactive le chargement
+                    });
+                },
+
+                async fetchClientInfos(id) {
+                    if (!id) return "Client inconnu";
+
+                    // Vérifier si l'information du client est déjà chargée
+                    if (this.clientInfos[id]) {
+                        return this.clientInfos[id];
+                    }
+
+                    try {
+                        let response = await axios.get(`${window.location.origin}/admin/clients/${id}/details`);
+                        if (response.data.success) {
+                            let clientName = response.data.data.name || "Nom inconnu";
+                            this.clientInfos[id] = clientName; // Stocker en cache
+                            return clientName;
+                        } else {
+                            console.error("Erreur lors de la récupération des infos client.");
+                            return "Erreur client";
+                        }
+                    } catch (error) {
+                        console.error("Erreur réseau ou serveur :", error);
+                        return "Erreur serveur";
+                    }
+                },
+
+                supprimerReservation(type, id) {
+                    if (!confirm('Voulez-vous vraiment supprimer cette réservation ?')) return;
+
+                    let url = `${window.location.origin}/admin/reservations/delete/${type}/${id}`;
+
+                    axios.delete(url, {
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    })
+                    .then(() => {
+                        alert("Réservation supprimée avec succès !");
+                        this.fetchReservationsForType();
+                    })
+                    .catch(error => {
+                        console.error("Erreur lors de la suppression :", error);
+                        alert("Une erreur est survenue lors de la suppression.");
+                    });
+                },
+
+                voirReservation(client_id, reservation_id) {
+                    window.location.href = `${window.location.origin}/admin/reservations/${client_id}/${reservation_id}`;
+                },
+
+                jumpToPage(page) {
+                    this.reservations.current_page = page;
+                    this.fetchReservationsForType();
+                },
+
+                formatDate(dateString) {
+                    if (!dateString) return "Non disponible";
+                    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                    return new Date(dateString).toLocaleDateString('fr-FR', options);
+                }
+            }));
+
+            Alpine.data('clientTable', () => ({
+                clientInfos: {}, // Stockage des infos client
+        
+                fetchClientInfos(id) {
+                    if (!id) return Promise.resolve("Client inconnu");
+        
+                    return axios.get(`${window.location.origin}/admin/clients/${id}/details`)
+                        .then(response => {
+                            if (response.data.success) {
+                                return response.data.data.name || "Nom inconnu";
+                            } else {
+                                console.error("Erreur lors de la récupération des infos client.");
+                                return "Erreur client";
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Erreur réseau ou serveur :", error);
+                            return "Erreur serveur";
+                        });
+                }
+            }));
+        
+            Alpine.data('statusManager', (id, type, initialStatus) => ({
+                status: initialStatus,
+        
+                updateStatus() {
+                    const newStatus = this.status === 'pending' ? 'validated' :
+                                      (this.status === 'validated' ? 'rejected' : 'pending');
+        
+                    let endpoint = `${window.location.origin}/admin/reservations/${id}/update-status-${type.toLowerCase()}`;
+        
+                    axios.post(endpoint, { status: newStatus }, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    })
+                    .then(response => {
+                        if (response.data.success) {
+                            this.status = newStatus;
+                            alert('Statut mis à jour avec succès !');
+                        } else {
+                            alert('Erreur lors de la mise à jour du statut.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur réseau ou serveur:', error);
+                        alert('Une erreur est survenue.');
+                    });
+                }
+            }));
+        });
     </script>
+        
     @endsection
     
