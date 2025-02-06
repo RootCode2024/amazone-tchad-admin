@@ -78,7 +78,15 @@ class ReservationController extends Controller
             'number_of_room' => 'required|min:1',
         ]);
     
-        $client = $this->reservationService->createClient($request->all(), 'hotel');
+        $client = Client::where('email', $request->email)->first();
+        if (!$client) {
+            $client = $this->reservationService->createClient($request->all(), 'hotel');
+        }else
+        {
+            $client->type_of_reservation = 'hotel';
+            $client->save();            
+        }
+        
         $reservation = $this->reservationService->createHotel($client, $request->all());
     
         $this->reservationService->sendReservationEmail($reservation);
@@ -126,7 +134,16 @@ class ReservationController extends Controller
             'age' => 'required',
         ]);
     
-        $client = $this->reservationService->createClient($request->all(), 'car_location');
+        $client = Client::where('email', $request->email)->first();
+        if (!$client) {
+            $client = $this->reservationService->createClient($request->all(), 'car_location');
+        }else
+        {
+            $client->type_of_reservation = 'car_location';
+            $client->save();            
+        }
+        
+
         $reservation = $this->reservationService->createCarLocation($client, $request->all());
     
         $this->reservationService->sendReservationEmail($reservation);
