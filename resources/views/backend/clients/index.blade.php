@@ -1,8 +1,8 @@
 @extends('backend.layouts.app')
 
-
 @section('head')
 <title>Clients - {{ config('app.name', 'Laravel') }}</title>
+<meta name="app-url" content="{{ config('app.url') }}">
 @endsection
 
 @section('breadcrum')
@@ -10,10 +10,9 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb my-0 ms-2">
             <li class="breadcrumb-item">
-                <!-- if breadcrumb is single--><span>Accueil</span>
+                <span>Accueil</span>
             </li>
             <li class="breadcrumb-item active"><span>Clients</span></li>
-
         </ol>
     </nav>
 </div>
@@ -21,9 +20,7 @@
 
 @section('content')
 <div class="container mt-5" x-data="clientTable">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary">Clients</h2>
-    </div>
+    <h2 class="fw-bold text-primary mb-4">Clients</h2>
 
     <div class="card shadow-lg">
         <div class="card-header bg-dark text-white">
@@ -43,9 +40,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <template x-for="client in clients.data" :key="client?.id">
+                    <template x-if="isLoading">
                         <tr>
-                            <td x-text="clients.data.indexOf(client) + 1"></td>
+                            <td colspan="7" class="text-center py-3">
+                                <span class="spinner-border spinner-border-sm"></span> Chargement...
+                            </td>
+                        </tr>
+                    </template>
+
+                    <template x-for="(client, index) in clients.data" :key="client?.id">
+                        <tr>
+                            <td x-text="index + 1"></td>
                             <td class="fw-bold">
                                 <span x-text="client.firstname"></span>
                                 <span x-text="client.lastname"></span>
@@ -54,17 +59,15 @@
                             <td x-text="client.phone"></td>
                             <td>
                                 <span class="badge bg-primary" 
-                                      x-text="client.type_of_reservation === 'car_location' ? 'Location de voiture' : 
-                                              (client.type_of_reservation === 'flight' ? 'Vol' : 
-                                              (client.type_of_reservation === 'hotel' ? 'Hôtel' : 'Vol + Hôtel'))">
+                                      x-text="translateReservationType(client.type_of_reservation)">
                                 </span>
                             </td>
-                            <td x-text="new Date(client.created_at).toLocaleString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })"></td>
+                            <td x-text="formatDate(client.created_at)"></td>
                             <td>
                                 <button class="btn btn-sm btn-outline-danger mx-1" @click="supprimerClient(client.id)">
                                     <i class="fas fa-trash"></i>
                                 </button>
-                                <a :href="`${window.location.origin}/admin/client/${client.id}`" class="btn btn-sm btn-outline-primary">
+                                <a :href="`${appUrl}/admin/client/${client.id}`" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-eye"></i>
                                 </a>
                             </td>
@@ -85,7 +88,7 @@
             </li>
             <template x-for="page in totalPages" :key="page">
                 <li class="page-item" :class="{ 'active': clients.current_page === page }">
-                    <button class="page-link" @click="fetchClients(`/clients/fetch?page=${page}`)" x-text="page"></button>
+                    <button class="page-link" @click="fetchClients(`${appUrl}/admin/clients/fetch?page=${page}`)" x-text="page"></button>
                 </li>
             </template>
             <li class="page-item" :class="{ 'disabled': !clients.next_page_url }">
@@ -133,41 +136,86 @@
         background-color: #dc3545;
         color: white;
     }
-
 </style>
 
 <script>
     document.addEventListener('alpine:init', () => {
-        Alpine.data('clientTable', () => ({
-            clients: { data: [], total: 0, per_page: 10, current_page: 1, last_page: 1 },
-            totalPages: 1,
+        
+        const appUrl = document.querySelector('meta[name="app-url"]').getAttribute('content');
+            Alpine.data('clientTable', () => ({
+                appUrl, 
+                clients: { data: [], total: 0, per_page: 10, current_page: 1, last_page: 1, prev_page_url: null, next_page_url: null },
+                totalPages: 1,
+                isLoading: true, 
 
-            init () {
-                this.fetchClients(`${window.location.origin}/admin/clients/fetch`);
-            },
+                init () {
+                    this.fetchClients(`${appUrl}/admin/clients/fetch`);
+                },
 
-            fetchClients (url) {
-                axios.get(url)
-                    .then(response => {
-                        this.clients = response.data;
-                        this.totalPages = this.clients.last_page;
-                    })
-                    .catch(error => {
-                        console.error(error);
-                    });
-            },
-
-            supprimerClient (id) {
-                    if (!confirm('Voulez-vous vraiment supprimer ce client ?')) return;
-                    axios.delete(`${window.location.origin}/admin/clients/delete/${id}`)
-                        .then(() => {
-                            this.fetchClients(`${window.location.origin}/admin/clients/fetch?page=${this.clients.current_page}`);
+                fetchClients (url) {
+                    this.isLoading;
+                    axios.get(url)
+                        .then(response => {
+                            this.clients = response.data;
+                            this.totalPages = this.clients.last_page;
+                            console.log(this.clients);
                         })
                         .catch(error => {
-                            console.error(error);
+                            console.error("Erreur de récupération des clients :", error);
+                        })
+                        .finally(() => {
+                            this.isLoading = false;
                         });
-                }
-        }));
-    });
+                },
+
+                supprimerClient (id) {
+                    Swal.fire({
+                        title: "Êtes-vous sûr ?",
+                        text: "Cette action est irréversible !",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Oui, supprimer",
+                        cancelButtonText: "Annuler",
+                        confirmButtonColor: "#d33",
+                        cancelButtonColor: "#3085d6"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            let url = `${this.appUrl}/admin/clients/delete/${id}`;
+
+                            Swal.fire({
+                                title: "Suppression en cours...",
+                                text: "Veuillez patienter",
+                                icon: "info",
+                                showConfirmButton: false,
+                                allowOutsideClick: false,
+                                willOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            axios.delete(url)
+                                .then(() => {
+                                    Swal.fire("Supprimé!", "Le client a été supprimé avec succès.", "success");
+                                    this.fetchClients(`${this.appUrl}/admin/clients/fetch?page=${this.clients.current_page}`);
+                                })
+                                .catch(error => {
+                                    console.error("Erreur de suppression :", error);
+                                    Swal.fire("Erreur", "Une erreur est survenue lors de la suppression.", "error");
+                                });
+                        }
+                    });
+                },
+
+                formatDate(dateString) {
+                    return new Date(dateString).toLocaleString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+                },
+
+                translateReservationType(type) {
+                    return type === 'car_location' ? 'Location de voiture' :
+                           type === 'flight' ? 'Vol' :
+                           type === 'hotel' ? 'Hôtel' : 'Vol + Hôtel';
+                },
+            }));
+        });
 </script>
 @endsection

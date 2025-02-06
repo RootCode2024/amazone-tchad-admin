@@ -69,7 +69,11 @@
                                 @endif
                             </td>
                             <td>
-                                {{ (\App\Models\Airport::where("id", $reservation->destination)->first())->country ?? '' }}
+                                @if ($reservation instanceof \App\Models\Hotel)
+                                    {{ (\App\Models\Airport::where("id", $reservation->country_id)->first())->country ?? '' }}
+                                @else
+                                    {{ (\App\Models\Airport::where("id", $reservation->destination)->first())->country ?? '' }}
+                                @endif
                             </td>
                             <td>
                                 <span>
