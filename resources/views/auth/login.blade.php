@@ -8,7 +8,7 @@
                         <!-- Formulaire de connexion admin -->
                         <div class="card col-md-7 p-4 mb-0">
                             <div class="card-body">
-                                <h1>Admin Login</h1>
+                                <h1>Connexion Admin</h1>
                                 <p class="text-medium-emphasis">
                                     Connectez-vous à l'administration de Amazone Tchad
                                 </p>

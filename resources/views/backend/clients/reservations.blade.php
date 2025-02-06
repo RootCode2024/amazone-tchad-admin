@@ -1,7 +1,7 @@
 @extends('backend.layouts.app')
 
 @section('head')
-    <title>Réservations - Amazone Tchad Admin</title>
+    <title>Réservations - {{ config('app.name', 'Laravel') }}</title>
 @endsection
 
 @section('breadcrumb')
@@ -29,11 +29,9 @@
         </select>
 
         <div class="container mt-5">
-            <h2 class="mb-4">
-                Réservations (<span x-text="typeReservationModel"></span>)
-            </h2>
+            <h2 class="mb-4">Réservations (<span x-text="typeReservationModel"></span>)</h2>
 
-            <!-- Tableau pour les vols -->
+            <!-- TABLEAU DES VOLS -->
             <template x-if="typeReservationModel === 'vols'">
                 <div>
                     <table class="table table-striped table-hover shadow-sm">
@@ -49,57 +47,45 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <template x-for="reservation in reservations.data" :key="reservation.id">
+                            <template x-for="(reservation, index) in reservations.data" :key="reservation.id">
                                 <tr class="align-middle">
-                                    <td class="text-center fw-bold" x-text="reservation.id"></td>
+                                    <td class="text-center fw-bold" x-text="index + 1"></td>
                                     <td>
                                         <div class="d-flex flex-column">
                                             <span class="fw-bold text-primary">
                                                 <i class="fas fa-plane-departure"></i>
-                                                <span x-text="reservation.flight_type === 'one-way' ? 'Aller simple' : (reservation.flight_type === 'round-trip' ? 'Aller-retour' : reservation.flight_type)"></span>
+                                                <span x-text="translateTypeFlight(reservation.flight_type)"></span>
                                             </span>
-
-                                            <span class="badge bg-info text-white mt-1">
-                                                <i class="fas fa-ticket-alt"></i>
-                                                <span x-text="reservation.flight_class === 'economy' ? 'Classe Économie' :
-                                                    (reservation.flight_class === 'business' ? 'Classe Affaires' :
-                                                    (reservation.flight_class === 'premium' ? 'Première Classe' : reservation.flight_class))">
-                                                </span>
-                                            </span>
-
                                             <hr class="my-1">
                                             <span class="fw-bold text-success">
                                                 <i class="fas fa-map-marker-alt"></i>
-                                                <span x-text="reservation.countries ? reservation.countries.country : ''"></span>
-                                                →
-                                                <span x-text="reservation.destination ? reservation.destinations.country : ''"></span>
-                                            </span>
-
-                                            <span class="text-muted">
-                                                <i class="fas fa-calendar-alt"></i>
-                                                <span x-text="reservation.departure_date"></span>
-                                                <span x-show="reservation.return_date"> - </span>
-                                                <span x-text="reservation.return_date"></span>
+                                                <span x-text="reservation.countries?.country ?? ''"></span> →
+                                                <span x-text="reservation.destinations?.country ?? ''"></span>
                                             </span>
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="fw-bold" x-text="reservation.client ? reservation.client.firstname : ''"></span>
-                                        <span x-text="reservation.client ? reservation.client.lastname : ''"></span>
+                                        <span class="fw-bold" x-text="reservation.client?.firstname ?? ''"></span>
+                                        <span x-text="reservation.client?.lastname ?? ''"></span>
                                     </td>
-                                    <td x-text="reservation.client ? reservation.client.phone : ''"></td>
+                                    <td x-text="reservation.client?.phone ?? ''"></td>
                                     <td x-text="formatDate(reservation.created_at)"></td>
 
+                                    <!-- Gestion du statut avec SweetAlert2 -->
                                     <td class="text-center">
-                                        <div x-data="statusManager(reservation.id, 'flight', reservation.status)">
-                                            <button @click="updateStatus(reservation.id)" 
-                                                    class="btn btn-sm" 
+                                        <div x-data="statusManager(reservation.id, 'Flight', reservation.status)">
+                                            <button @click="updateStatus()" 
+                                                    class="btn btn-sm d-flex align-items-center justify-content-center" 
                                                     :class="status === 'pending' ? 'btn-warning' : (status === 'validated' ? 'btn-success' : 'btn-danger')"
-                                                    >
-                                                    <span x-text="status === 'pending' ? 'En Attente' : (status === 'validated' ? 'Validé' : 'Rejeté')"></span>
+                                                    :disabled="isLoading">
+                                                <span x-show="!isLoading" x-text="translateStatus(status)"></span>
+                                                <span x-show="isLoading">
+                                                    <i class="fas fa-spinner fa-spin"></i>
+                                                </span>
                                             </button>
                                         </div>
                                     </td>
+                                                                    
                                     <td class="text-center">
                                         <button class="btn btn-outline-primary btn-sm" @click="voirReservation(reservation.client_id, reservation.id)">
                                             <i class="fas fa-eye"></i> Voir
@@ -107,36 +93,15 @@
                                         <button class="btn btn-outline-danger btn-sm" @click="supprimerReservation('flight', reservation.id)">
                                             <i class="fas fa-trash"></i> Supprimer
                                         </button>
-                                    </td>
+                                    </td>                                    
                                 </tr>
                             </template>
                         </tbody>
                     </table>
-
-                    <!-- Pagination -->
-                    <nav class="mt-3">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item" :class="{ 'disabled': !reservations.prev_page_url }">
-                                <button class="page-link" @click="fetchReservations(reservations.prev_page_url)">
-                                    <i class="fas fa-chevron-left"></i> Précédent
-                                </button>
-                            </li>
-                            <template x-for="page in totalPages" :key="page">
-                                <li class="page-item" :class="{ 'active': reservations.current_page === page }">
-                                    <button class="page-link" @click="jumpToPage(page)" x-text="page"></button>
-                                </li>
-                            </template>
-                            <li class="page-item" :class="{ 'disabled': !reservations.next_page_url }">
-                                <button class="page-link" @click="fetchReservations(reservations.next_page_url)">
-                                    Suivant <i class="fas fa-chevron-right"></i>
-                                </button>
-                            </li>
-                        </ul>
-                    </nav>
                 </div>
             </template>
 
-            <!-- Tableau pour les hôtels -->
+            <!-- TABLEAU POUR LES HÔTELS -->
             <template x-if="typeReservationModel === 'hotels'">
                 <div>
                     <table class="table table-bordered">
@@ -154,28 +119,30 @@
                             <template x-for="reservation in reservations.data" :key="reservation.id">
                                 <tr>
                                     <td x-text="reservation.id"></td>
-                                    <td x-data="{ clientName: 'Chargement...' }" 
-                                        x-init="fetchClientInfos(reservation.client_id).then(name => clientName = name)">
-                                        <span x-text="clientName"></span>
-                                    </td>
-
+                                    <td x-text="reservation.client_id"></td>
                                     <td x-text="reservation.number_of_room"></td>
                                     <td x-text="formatDate(reservation.created_at)"></td>
+
+                                    <!-- Gestion du statut avec SweetAlert2 -->
                                     <td class="text-center">
-                                        <div x-data="statusManager(reservation.id, 'hotel', reservation.status)">
-                                            <button @click="updateStatus(reservation.id)" 
-                                                    class="btn btn-sm" 
+                                        <div x-data="statusManager(reservation.id, 'Hotel', reservation.status)">
+                                            <button @click="updateStatus()" 
+                                                    class="btn btn-sm d-flex align-items-center justify-content-center" 
                                                     :class="status === 'pending' ? 'btn-warning' : (status === 'validated' ? 'btn-success' : 'btn-danger')"
-                                                    >
-                                                    <span x-text="status === 'pending' ? 'En Attente' : (status === 'validated' ? 'Validé' : 'Rejeté')"></span>
+                                                    :disabled="isLoading">
+                                                <span x-show="!isLoading" x-text="translateStatus(status)"></span>
+                                                <span x-show="isLoading">
+                                                    <i class="fas fa-spinner fa-spin"></i>
+                                                </span>
                                             </button>
                                         </div>
                                     </td>
+                                    
                                     <td class="text-center">
-                                        <button class="btn btn-outline-primary btn-sm" @click="voirReservation(reservation.client_id, reservation.id)">
+                                        <button class="btn btn-outline-primary btn-sm">
                                             <i class="fas fa-eye"></i> Voir
                                         </button>
-                                        <button class="btn btn-outline-danger btn-sm" @click="supprimerReservation('hotel', reservation.id)">
+                                        <button class="btn btn-outline-danger btn-sm">
                                             <i class="fas fa-trash"></i> Supprimer
                                         </button>
                                     </td>
@@ -183,32 +150,10 @@
                             </template>
                         </tbody>
                     </table>
-
-                    <!-- Pagination -->
-                    <nav class="mt-3">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item" :class="{ 'disabled': !reservations.prev_page_url }">
-                                <button class="page-link" @click="fetchReservations(reservations.prev_page_url)">
-                                    <i class="fas fa-chevron-left"></i> Précédent
-                                </button>
-                            </li>
-                            <template x-for="page in totalPages" :key="page">
-                                <li class="page-item" :class="{ 'active': reservations.current_page === page }">
-                                    <button class="page-link" @click="jumpToPage(page)" x-text="page"></button>
-                                </li>
-                            </template>
-                            <li class="page-item" :class="{ 'disabled': !reservations.next_page_url }">
-                                <button class="page-link" @click="fetchReservations(reservations.next_page_url)">
-                                    Suivant <i class="fas fa-chevron-right"></i>
-                                </button>
-                            </li>
-                        </ul>
-                    </nav>
                 </div>
             </template>
 
-
-            <!-- Tableau pour Locations de voitures -->
+            <!-- TABLEAU POUR LES LOCATIONS DE VOITURES -->
             <template x-if="typeReservationModel === 'locations'">
                 <div>
                     <table class="table table-bordered">
@@ -217,7 +162,6 @@
                                 <th>#</th>
                                 <th>Client</th>
                                 <th>Age</th>
-                                <th>Téléphone</th>
                                 <th>Date de la demande</th>
                                 <th>Statut</th>
                                 <th>Actions</th>
@@ -226,22 +170,31 @@
                         <tbody>
                             <template x-for="reservation in reservations.data" :key="reservation.id">
                                 <tr>
-                                    <td>4</td>
-                                    <td>
-                                        <span class="fw-bold">r</span>
-                                        <span >e</span>
-                                    </td>
-                                    <td >e</td>
-                                    <td >e</td>
-                                    <td >e</td>
-                                    <td>
-                                        e
-                                    </td>
+                                    <td x-text="reservation.id"></td>
+                                    <td x-text="reservation.client?.firstname + ' ' + reservation.client?.lastname"></td>
+                                    <td x-text="reservation.age"></td>
+                                    <td x-text="formatDate(reservation.created_at)"></td>
+
+                                    <!-- Gestion du statut avec SweetAlert2 -->
                                     <td class="text-center">
-                                        <button class="btn btn-outline-primary btn-sm" @click="voirReservation(reservation.client_id, reservation.id)">
+                                        <div x-data="statusManager(reservation.id, 'CarLocation', reservation.status)">
+                                            <button @click="updateStatus()" 
+                                                    class="btn btn-sm d-flex align-items-center justify-content-center" 
+                                                    :class="status === 'pending' ? 'btn-warning' : (status === 'validated' ? 'btn-success' : 'btn-danger')"
+                                                    :disabled="isLoading">
+                                                <span x-show="!isLoading" x-text="translateStatus(status)"></span>
+                                                <span x-show="isLoading">
+                                                    <i class="fas fa-spinner fa-spin"></i>
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    
+                                    <td class="text-center">
+                                        <button class="btn btn-outline-primary btn-sm">
                                             <i class="fas fa-eye"></i> Voir
                                         </button>
-                                        <button class="btn btn-outline-danger btn-sm" @click="supprimerReservation('carlocation', reservation.id)">
+                                        <button class="btn btn-outline-danger btn-sm">
                                             <i class="fas fa-trash"></i> Supprimer
                                         </button>
                                     </td>
@@ -249,53 +202,33 @@
                             </template>
                         </tbody>
                     </table>
-    
-                    <!-- Pagination -->
-                    <nav class="mt-3">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item" :class="{ 'disabled': !reservations.prev_page_url }">
-                                <button class="page-link" @click="fetchReservations(reservations.prev_page_url)">
-                                    <i class="fas fa-chevron-left"></i> Précédent
-                                </button>
-                            </li>
-                            <template x-for="page in totalPages" :key="page">
-                                <li class="page-item" :class="{ 'active': reservations.current_page === page }">
-                                    <button class="page-link" @click="jumpToPage(page)" x-text="page"></button>
-                                </li>
-                            </template>
-                            <li class="page-item" :class="{ 'disabled': !reservations.next_page_url }">
-                                <button class="page-link" @click="fetchReservations(reservations.next_page_url)">
-                                    Suivant <i class="fas fa-chevron-right"></i>
-                                </button>
-                            </li>
-                        </ul>
-                    </nav>
                 </div>
             </template>
+
         </div>
     </div>
-    
     <script>
+        
         document.addEventListener('alpine:init', () => {
+            
+            const appUrl = document.querySelector('meta[name="app-url"]').getAttribute('content');
+
+            // Gestion des réservations
             Alpine.data('reservationTable', () => ({
                 reservations: { data: [], total: 0, per_page: 5, current_page: 1, last_page: 1 },
-                totalPages: 1,
                 typeReservationModel: 'vols',
-                baseUrl: `${window.location.origin}/admin/reservations/`,
-                clientInfos: {}, 
-                isLoading: false,
-
+                baseUrl: `${appUrl}/admin/reservations/`,
+    
                 init() {
                     console.log("Initialisation du composant...");
                     this.fetchReservationsForType();
                 },
-
+    
                 updateTable() {
-                    console.log("Mise à jour du tableau pour :", this.typeReservationModel);
                     this.reservations.current_page = 1;
                     this.fetchReservationsForType();
                 },
-
+    
                 getApiEndpoint() {
                     const endpoints = {
                         vols: `${this.baseUrl}fetchVols`,
@@ -304,154 +237,160 @@
                     };
                     return endpoints[this.typeReservationModel] || this.baseUrl;
                 },
-
+    
                 fetchReservationsForType() {
-                    console.log("Fetching reservations for type:", this.typeReservationModel);
                     const endpoint = this.getApiEndpoint();
                     if (!endpoint) {
-                        console.error("Endpoint introuvable pour le type de réservation :", this.typeReservationModel);
+                        console.error("Endpoint introuvable :", this.typeReservationModel);
                         return;
                     }
                     this.fetchReservations(endpoint);
                 },
-
+    
                 fetchReservations(url) {
-                    this.isLoading = true; // Active le chargement
                     console.log("Appel API :", url);
-
+    
                     axios.get(url, {
-                        params: {
-                            page: this.reservations.current_page,
-                            per_page: this.reservations.per_page
-                        }
+                        params: { page: this.reservations.current_page, per_page: this.reservations.per_page }
                     })
                     .then(response => {
-                        console.log("Données reçues :", response.data);
                         this.reservations = response.data;
-                        this.totalPages = this.reservations.last_page;
                     })
                     .catch(error => {
-                        console.error("Erreur lors du chargement des réservations :", error);
-                        alert("Une erreur est survenue lors du chargement des réservations.");
-                    })
-                    .finally(() => {
-                        this.isLoading = false; // Désactive le chargement
+                        console.error("Erreur lors du chargement :", error);
+                        Swal.fire("Erreur", "Impossible de charger les réservations.", "error");
                     });
                 },
 
-                async fetchClientInfos(id) {
-                    if (!id) return "Client inconnu";
-
-                    // Vérifier si l'information du client est déjà chargée
-                    if (this.clientInfos[id]) {
-                        return this.clientInfos[id];
-                    }
-
-                    try {
-                        let response = await axios.get(`${window.location.origin}/admin/clients/${id}/details`);
-                        if (response.data.success) {
-                            let clientName = response.data.data.name || "Nom inconnu";
-                            this.clientInfos[id] = clientName; // Stocker en cache
-                            return clientName;
-                        } else {
-                            console.error("Erreur lors de la récupération des infos client.");
-                            return "Erreur client";
-                        }
-                    } catch (error) {
-                        console.error("Erreur réseau ou serveur :", error);
-                        return "Erreur serveur";
-                    }
-                },
-
                 supprimerReservation(type, id) {
-                    if (!confirm('Voulez-vous vraiment supprimer cette réservation ?')) return;
+                    Swal.fire({
+                        title: "Êtes-vous sûr ?",
+                        text: "Cette action est irréversible !",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Oui, supprimer",
+                        cancelButtonText: "Annuler",
+                        confirmButtonColor: "#d33",
+                        cancelButtonColor: "#3085d6"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            let url = `${appUrl}/admin/reservations/delete/${type}/${id}`;
 
-                    let url = `${window.location.origin}/admin/reservations/delete/${type}/${id}`;
+                            Swal.fire({
+                                title: "Suppression en cours...",
+                                text: "Veuillez patienter",
+                                icon: "info",
+                                showConfirmButton: false,
+                                allowOutsideClick: false,
+                                willOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
 
-                    axios.delete(url, {
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            axios.delete(url, {
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                }
+                            })
+                            .then(() => {
+                                Swal.fire("Supprimé!", "La réservation a été supprimée avec succès.", "success");
+                                this.fetchReservationsForType();
+                            })
+                            .catch(error => {
+                                console.error("Erreur lors de la suppression :", error);
+                                Swal.fire("Erreur", "Une erreur est survenue lors de la suppression.", "error");
+                            });
                         }
-                    })
-                    .then(() => {
-                        alert("Réservation supprimée avec succès !");
-                        this.fetchReservationsForType();
-                    })
-                    .catch(error => {
-                        console.error("Erreur lors de la suppression :", error);
-                        alert("Une erreur est survenue lors de la suppression.");
                     });
                 },
 
                 voirReservation(client_id, reservation_id) {
-                    window.location.href = `${window.location.origin}/admin/reservations/${client_id}/${reservation_id}`;
+                    console.log('APP URL: ', appUrl);
+                    window.location.href = `${appUrl}/admin/reservations/${client_id}/${reservation_id}`;
                 },
-
+    
                 jumpToPage(page) {
                     this.reservations.current_page = page;
                     this.fetchReservationsForType();
                 },
-
+    
                 formatDate(dateString) {
                     if (!dateString) return "Non disponible";
-                    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-                    return new Date(dateString).toLocaleDateString('fr-FR', options);
-                }
-            }));
+                    return new Date(dateString).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+                },
 
-            Alpine.data('clientTable', () => ({
-                clientInfos: {}, // Stockage des infos client
-        
-                fetchClientInfos(id) {
-                    if (!id) return Promise.resolve("Client inconnu");
-        
-                    return axios.get(`${window.location.origin}/admin/clients/${id}/details`)
-                        .then(response => {
-                            if (response.data.success) {
-                                return response.data.data.name || "Nom inconnu";
-                            } else {
-                                console.error("Erreur lors de la récupération des infos client.");
-                                return "Erreur client";
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Erreur réseau ou serveur :", error);
-                            return "Erreur serveur";
-                        });
+                // Traduction des types de vol en français
+                translateTypeFlight(flightType) {
+                    return flightType === 'one-way' ? 'Aller simple' :
+                        flightType === 'round-trip' ? 'Aller-retour' :
+                        flightType === 'multi-city' ? 'Multi-destinations' : 'Inconnu';
                 }
             }));
-        
+    
+            // Gestion des statuts avec SweetAlert2
             Alpine.data('statusManager', (id, type, initialStatus) => ({
+                id,
+                type,
                 status: initialStatus,
-        
+                isLoading: false,
+
+                translateStatus(status) {
+                    return status === 'pending' ? 'En attente' :
+                        status === 'validated' ? 'Validé' :
+                        status === 'rejected' ? 'Rejeté' : 'Inconnu';
+                },
+    
                 updateStatus() {
-                    const newStatus = this.status === 'pending' ? 'validated' :
-                                      (this.status === 'validated' ? 'rejected' : 'pending');
-        
-                    let endpoint = `${window.location.origin}/admin/reservations/${id}/update-status-${type.toLowerCase()}`;
-        
+                    Swal.fire({
+                        title: "Modifier le statut",
+                        text: "Sélectionnez le nouveau statut :",
+                        icon: "question",
+                        input: "select",
+                        inputOptions: {
+                            pending: "En attente",
+                            validated: "Validé",
+                            rejected: "Rejeté"
+                        },
+                        inputValue: this.status,
+                        showCancelButton: true,
+                        confirmButtonText: "Confirmer",
+                        cancelButtonText: "Annuler"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.confirmStatusChange(result.value);
+                        }
+                    });
+                },
+    
+                confirmStatusChange(newStatus) {
+                    let endpoint = `${appUrl}/admin/reservations/${this.id}/update-status-${this.type.toLowerCase()}`;
+    
+                    console.log("API appelée:", endpoint);
+                    this.isLoading = true;
+    
                     axios.post(endpoint, { status: newStatus }, {
                         headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         }
                     })
                     .then(response => {
                         if (response.data.success) {
                             this.status = newStatus;
-                            alert('Statut mis à jour avec succès !');
+                            Swal.fire("Succès", "Le statut a été mis à jour avec succès.", "success");
                         } else {
-                            alert('Erreur lors de la mise à jour du statut.');
+                            Swal.fire("Erreur", "Échec de la mise à jour du statut.", "error");
                         }
                     })
                     .catch(error => {
-                        console.error('Erreur réseau ou serveur:', error);
-                        alert('Une erreur est survenue.');
+                        console.error("Erreur réseau:", error);
+                        Swal.fire("Erreur", "Une erreur est survenue lors de la mise à jour du statut.", "error");
+                    })
+                    .finally(() => {
+                    this.isLoading = false;
                     });
                 }
             }));
         });
     </script>
-        
-    @endsection
     
+@endsection

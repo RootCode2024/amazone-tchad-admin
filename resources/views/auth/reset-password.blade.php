@@ -1,5 +1,3 @@
-
-
 <x-guest-layout>
     <div class="bg-light min-vh-100 d-flex flex-row align-items-center">
         <div class="container">
@@ -7,10 +5,10 @@
                 <div class="col-md-6">
                     <div class="card mb-4 mx-4">
                         <div class="card-body p-4">
-                            <h1>Change Your Password</h1>
+                            <h1>Changer votre mot de passe</h1>
 
                             <p class="text-medium-emphasis">
-                                {{ __("Please make a strong password and don't share your password with anyone.") }}
+                                {{ __("Veuillez choisir un mot de passe fort et ne pas le partager avec qui que ce soit.") }}
                             </p>
 
 
@@ -26,21 +24,21 @@
 
                                 <!-- Email Address -->
                                 <div>
-                                    <x-input-label for="email" :value="__('Email')" />
+                                    <x-input-label for="email" :value="__('Adresse e-mail')" />
                                     <x-text-input id="email" class="form-control" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
                                     <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                 </div>
 
                                 <!-- Password -->
                                 <div class="mt-4">
-                                    <x-input-label for="password" :value="__('Password')" />
+                                    <x-input-label for="password" :value="__('Mot de passe')" />
                                     <x-text-input id="password" class="form-control" type="password" name="password" required autocomplete="new-password" />
                                     <x-input-error :messages="$errors->get('password')" class="mt-2" />
                                 </div>
 
                                 <!-- Confirm Password -->
                                 <div class="mt-4">
-                                    <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+                                    <x-input-label for="password_confirmation" :value="__('Confirmer le mot de passe')" />
 
                                     <x-text-input id="password_confirmation" class="form-control"
                                                         type="password"
@@ -51,12 +49,12 @@
 
                                 <div class="flex items-center justify-end mt-4">
                                     <x-primary-button class="btn btn-success">
-                                        {{ __('Reset Password') }}
+                                        {{ __('Réinitialiser le mot de passe') }}
                                     </x-primary-button>
                                 </div>
                             </form>
 
-                            {{-- <button class="btn btn-block btn-success" type="button">Create Account</button> --}}
+                            {{-- <button class="btn btn-block btn-success" type="button">Créer un compte</button> --}}
                         </div>
                     </div>
                 </div>

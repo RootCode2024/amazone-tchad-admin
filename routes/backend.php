@@ -35,15 +35,12 @@ Route::prefix('/admin/reservations')->middleware('auth')->group(function () {
     // Routes pour récupérer les réservations par type
     Route::get('/fetchVols', [BackendReservationController::class, 'fetchReservations'])->name('reservations.fetchVols');
     Route::get('/fetchHotels', [BackendReservationController::class, 'fetchReservations'])->name('reservations.fetchHotels');
-
-
-    // Route::get('/fetchVolsHotels', [BackendReservationController::class, 'fetchReservations'])->name('reservations.fetchVolsHotels');
     Route::get('/fetchLocations', [BackendReservationController::class, 'fetchReservations'])->name('reservations.fetchLocations');
     
     // Routes pour mis à jour du status des reservations
-    Route::post('/{id}/update-status-flight', [ReservationController::class, 'updateStatusFlight']);
     Route::post('/{id}/update-status-hotel', [ReservationController::class, 'updateStatusHotel']);
     Route::post('/{id}/update-status-car-location', [ReservationController::class, 'updateStatusCarLocation']);
+    Route::post('/{id}/update-status-flight', [ReservationController::class, 'updateStatusFlight']);
     
     //Routes pour supprimer des reservations
     Route::delete('/delete/flight/{id}', [BackendReservationController::class, 'destroyvol']);

@@ -2,7 +2,7 @@
 
 
 @section('head')
-<title>Clients - Amazone Tchad Admin</title>
+<title>Clients - {{ config('app.name', 'Laravel') }}</title>
 @endsection
 
 @section('breadcrum')
@@ -20,101 +20,154 @@
 @endsection
 
 @section('content')
-    <div class="container mt-5" x-data="clientTable">
-        <h2 class="mb-4">Clients</h2>
-
-        <table class="table table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th>#</th>
-                    <th>Nom Complet</th>
-                    <th>Email</th>
-                    <th>Téléphone</th>
-                    <th>Type de reservation</th>
-                    <th>Demandé le</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <template x-for="client in clients.data" :key="client?.id">
-                    <tr>
-                        <td x-text="clients.data.indexOf(client) + 1"></td>
-                        <td>
-                            <span x-text="client.firstname"></span>
-                            <span x-text="client.lastname"></span>
-                        </td>
-                        <td x-text="client.email"></td>
-                        <td x-text="client.phone"></td>
-                        <td>
-                            <span x-text="client.type_of_reservation === 'car_location' ? 'Location de voiture' : 
-                            (client.type_of_reservation === 'flight' ? 'Vol' : 
-                            (client.type_of_reservation === 'hotel' ? 'Hôtel' : 'Vol + Hôtel'))"></span>
-                        </td>
-                        <td x-text="new Date(client.created_at).toLocaleString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })"></td>
-                        <td>
-                            <a class="" @click="supprimerClient(client.id)">
-                                <x-coreui-icon class="nav-icon" icon="cil-trash" style="width: 15px;height:15px;color:red;" />
-                            </a>
-                            <a :href="`${window.location.origin}/admin/client/${client.id}`">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="15" height="15">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                </svg>
-                            </a>                            
-                        </td>
-                    </tr>
-                </template>
-            </tbody>
-        </table>
-        <!-- pagination -->
-        <nav>
-            <ul class="pagination">
-                <li class="page-item" :class="{ 'disabled': !clients.prev_page_url }">
-                    <button class="page-link" @click="fetchClients(clients.prev_page_url)">Précédent</button>
-                </li>
-                <template x-for="page in totalPages" :key="page">
-                    <li class="page-item" :class="{ 'active': clients.current_page === page }">
-                        <button class="page-link" @click="fetchClients(`/clients/fetch?page=${page}`)" x-text="page"></button>
-                    </li>
-                </template>
-                <li class="page-item" :class="{ 'disabled': !clients.next_page_url }">
-                    <button class="page-link" @click="fetchClients(clients.next_page_url)">Suivant</button>
-                </li>
-            </ul>
-        </nav>
+<div class="container mt-5" x-data="clientTable">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary">Clients</h2>
     </div>
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('clientTable', () => ({
-                clients: { data: [], total: 0, per_page: 10, current_page: 1, last_page: 1 },
-                totalPages: 1,
 
-                init () {
-                    this.fetchClients(`${window.location.origin}/admin/clients/fetch`);
-                },
+    <div class="card shadow-lg">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Liste des Clients</h5>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover table-responsive-lg text-center mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Nom Complet</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Type de réservation</th>
+                        <th>Demandé le</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="client in clients.data" :key="client?.id">
+                        <tr>
+                            <td x-text="clients.data.indexOf(client) + 1"></td>
+                            <td class="fw-bold">
+                                <span x-text="client.firstname"></span>
+                                <span x-text="client.lastname"></span>
+                            </td>
+                            <td x-text="client.email"></td>
+                            <td x-text="client.phone"></td>
+                            <td>
+                                <span class="badge bg-primary" 
+                                      x-text="client.type_of_reservation === 'car_location' ? 'Location de voiture' : 
+                                              (client.type_of_reservation === 'flight' ? 'Vol' : 
+                                              (client.type_of_reservation === 'hotel' ? 'Hôtel' : 'Vol + Hôtel'))">
+                                </span>
+                            </td>
+                            <td x-text="new Date(client.created_at).toLocaleString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })"></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-danger mx-1" @click="supprimerClient(client.id)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <a :href="`${window.location.origin}/admin/client/${client.id}`" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-                fetchClients (url) {
-                    axios.get(url)
-                        .then(response => {
-                            this.clients = response.data;
-                            this.totalPages = this.clients.last_page;
+    <!-- Pagination -->
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" :class="{ 'disabled': !clients.prev_page_url }">
+                <button class="page-link" @click="fetchClients(clients.prev_page_url)">
+                    <i class="fas fa-chevron-left"></i> Précédent
+                </button>
+            </li>
+            <template x-for="page in totalPages" :key="page">
+                <li class="page-item" :class="{ 'active': clients.current_page === page }">
+                    <button class="page-link" @click="fetchClients(`/clients/fetch?page=${page}`)" x-text="page"></button>
+                </li>
+            </template>
+            <li class="page-item" :class="{ 'disabled': !clients.next_page_url }">
+                <button class="page-link" @click="fetchClients(clients.next_page_url)">
+                    Suivant <i class="fas fa-chevron-right"></i>
+                </button>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<style>
+    .card {
+        border-radius: 12px;
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+    }
+
+    .card:hover {
+        transform: scale(1.02);
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .badge {
+        padding: 6px 12px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 8px;
+    }
+
+    .table th, .table td {
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+
+</style>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('clientTable', () => ({
+            clients: { data: [], total: 0, per_page: 10, current_page: 1, last_page: 1 },
+            totalPages: 1,
+
+            init () {
+                this.fetchClients(`${window.location.origin}/admin/clients/fetch`);
+            },
+
+            fetchClients (url) {
+                axios.get(url)
+                    .then(response => {
+                        this.clients = response.data;
+                        this.totalPages = this.clients.last_page;
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+            },
+
+            supprimerClient (id) {
+                    if (!confirm('Voulez-vous vraiment supprimer ce client ?')) return;
+                    axios.delete(`${window.location.origin}/admin/clients/delete/${id}`)
+                        .then(() => {
+                            this.fetchClients(`${window.location.origin}/admin/clients/fetch?page=${this.clients.current_page}`);
                         })
                         .catch(error => {
                             console.error(error);
                         });
-                },
-
-                supprimerClient (id) {
-                        if (!confirm('Voulez-vous vraiment supprimer ce client ?')) return;
-                        axios.delete(`${window.location.origin}/admin/clients/delete/${id}`)
-                            .then(() => {
-                                this.fetchClients(`${window.location.origin}/admin/clients/fetch?page=${this.clients.current_page}`);
-                            })
-                            .catch(error => {
-                                console.error(error);
-                            });
-                    }
-            }));
-        });
-    </script>
+                }
+        }));
+    });
+</script>
 @endsection

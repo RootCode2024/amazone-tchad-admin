@@ -1,7 +1,7 @@
 @extends('backend.layouts.app')
 
 @section('head')
-<title>Détails du Client - Amazone Tchad Admin</title>
+<title>Détails du client - {{ config('app.name', 'Laravel') }}</title>
 @endsection
 
 @section('breadcrum')
@@ -81,15 +81,18 @@
                                 </span>
                             </td>
                             <td>
+                                <!-- Alpine.js pour gérer le statut -->
                                 <div x-data="statusManager('{{ $reservation->id }}', '{{ get_class($reservation) }}', '{{ $reservation->status }}')">
+                                    <!-- Bouton de statut qui ouvre SweetAlert2 -->
                                     <button
                                         class="btn btn-sm"
                                         :class="status === 'pending' ? 'btn-warning' : (status === 'validated' ? 'btn-success' : 'btn-danger')"
-                                        @click="updateStatus()">
+                                        @click="openModal()">
                                         <span x-text="status === 'pending' ? 'En Attente' : (status === 'validated' ? 'Validé' : 'Rejeté')"></span>
                                     </button>
                                 </div>
-                            </td>                                                    
+                            </td>
+                                                                                
                             <td>
                                 <a href="{{ route('reservations.show', [$client, $reservation->id]) }}" class="btn btn-primary">
                                     <i class="fas fa-eye"></i> Voir
@@ -115,20 +118,50 @@
 
 <script>
     document.addEventListener('alpine:init', () => {
+        const appUrl = document.querySelector('meta[name="app-url"]').getAttribute('content');
+    
         Alpine.data('statusManager', (id, type, initialStatus) => ({
+            id,
+            type,
             status: initialStatus,
-
-            updateStatus() {
-                const newStatus = this.status === 'pending' ? 'validated' :
-                                  (this.status === 'validated' ? 'rejected' : 'pending');
-
-                // API endpoint basé sur le type de réservation
+    
+            // Ouvre SweetAlert2 pour sélectionner le statut
+            openModal() {
+                Swal.fire({
+                    title: 'Changer le statut',
+                    text: "Sélectionnez un nouveau statut pour cette réservation :",
+                    icon: 'question',
+                    input: 'select',
+                    inputOptions: {
+                        pending: 'En attente',
+                        validated: 'Validé',
+                        rejected: 'Rejeté'
+                    },
+                    inputValue: this.status, // Pré-rempli avec le statut actuel
+                    showCancelButton: true,
+                    confirmButtonText: 'Confirmer',
+                    cancelButtonText: 'Annuler',
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.confirmStatusChange(result.value);
+                    }
+                });
+            },
+    
+            // Confirme le changement de statut et envoie la requête
+            confirmStatusChange(newStatus) {
                 let endpoint = '';
-                if (type.includes('Flight')) endpoint = `${window.location.origin}/admin/reservations/${id}/update-status-flight`;
-                else if (type.includes('Hotel')) endpoint = `${window.location.origin}/admin/reservations/${id}/update-status-hotel`;
-                else if (type.includes('CarLocation')) endpoint = `${window.location.origin}/admin/reservations/${id}/update-status-car-location`;
-
-                // Envoie de la requête de mise à jour
+                if (this.type.includes('Flight')) endpoint = `${appUrl}/admin/reservations/${this.id}/update-status-flight`;
+                else if (this.type.includes('Hotel')) endpoint = `${appUrl}/admin/reservations/${this.id}/update-status-hotel`;
+                else if (this.type.includes('CarLocation')) endpoint = `${appUrl}/admin/reservations/${this.id}/update-status-car-location`;
+    
+                console.log("URL API appelée:", endpoint);
+    
                 fetch(endpoint, {
                     method: 'POST',
                     headers: {
@@ -140,26 +173,34 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Mettre à jour le statut localement
                         this.status = newStatus;
-                        alert('Statut mis à jour avec succès !');
+                        Swal.fire({
+                            title: 'Succès !',
+                            text: 'Le statut a été mis à jour avec succès.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
                     } else {
-                        alert('Erreur lors de la mise à jour du statut.');
+                        Swal.fire({
+                            title: 'Erreur',
+                            text: 'Une erreur est survenue lors de la mise à jour du statut.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
                     }
                 })
                 .catch(error => {
                     console.error('Erreur réseau ou serveur:', error);
-
-                    // Vérifier si le serveur a renvoyé une page HTML (erreur 500)
-                    if (error instanceof SyntaxError) {
-                        alert('Erreur serveur : vérifiez les logs Laravel.');
-                    } else {
-                        alert('Une erreur est survenue.');
-                    }
+                    Swal.fire({
+                        title: 'Erreur',
+                        text: 'Une erreur s\'est produite. Veuillez réessayer.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                 });
             }
         }));
     });
 </script>
-
+    
 @endsection

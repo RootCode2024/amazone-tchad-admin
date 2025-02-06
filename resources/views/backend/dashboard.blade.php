@@ -2,6 +2,10 @@
 
 @section('title', 'Tableau de bord - Amazone Tchad Admin')
 
+@section('head')
+    <title>Tableau de Bord - {{ config('app.name', 'Laravel') }}</title>
+@endsection
+
 @section('breadcrum')
 <div class="container-fluid">
     <nav aria-label="breadcrumb">
@@ -17,127 +21,100 @@
 @endsection
 
 @section('content')
+<style>
+    .bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+    }
+
+    .card {
+        border-radius: 12px;
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-body {
+        text-align: center;
+    }
+
+    h5.card-title {
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    p.mb-0 {
+        font-size: 14px;
+    }
+
+    .animate__fadeInUp {
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    @media (max-width: 768px) {
+        .display-6 {
+            font-size: 24px;
+        }
+        
+        .card {
+            margin-bottom: 15px;
+        }
+    }
+</style>
 <div class="row">
-    <div class="col-sm-12 col-lg-12">
-        <section class="py-5 bg-light">
+    <!-- Message de bienvenue -->
+    <div class="col-12 my-3">
+        <section class="py-5 bg-gradient-primary text-white text-center rounded shadow-sm">
             <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-sm-12 col-lg-8 text-center">
-                        <h1 class="display-8 fw-bold">Heureux de vous revoir<br> M. {{ auth()->user()->name }}</h1>
-                        <p class="lead text-muted">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sit odio minima illum, aperiam aliquid ab amet quasi placeat laborum recusandae numquam officiis libero necessitatibus impedit, hic natus vero magnam. Facere.</p>
-                        <a href="{{ route('clients.index') }}" class="btn btn-primary btn-md mt-2">Voir Nouveaux clients</a>
-                    </div>
-                </div>
+                <h1 class="display-6 fw-bold">Heureux de vous revoir, {{ auth()->user()->name }} 👋</h1>
+                <p class="lead">Bienvenue sur votre tableau de bord. Consultez les nouvelles réservations et gérez vos clients facilement.</p>
+                <a href="{{ route('clients.index') }}" class="btn btn-light btn-md mt-3 fw-bold">Voir Nouveaux Clients</a>
             </div>
         </section>
     </div>
-    <div class="col-sm-6 col-lg-3">
-        <div class="card mb-4 text-white bg-primary">
-            <div class="card-body pb-0 d-flex justify-content-between align-items-start">
-                <div>
-                    <div class="fs-4 fw-semibold">{{ $users }} <span class="fs-6 fw-normal"></span></div>
-                    <div>Managers</div>
-                </div>
-                <div class="dropdown">
-                    <button class="btn btn-transparent text-white p-0" type="button"
-                        data-coreui-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <svg class="icon">
-                            <use xlink:href="assets/icons/sprites/free.svg#cil-options">
-                            </use>
-                        </svg>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end"><a class="dropdown-item"
-                            href="#">Action</a><a class="dropdown-item" href="#">Another
-                            action</a><a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </div>
-            </div>
-            <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
-                <canvas class="chart" id="card-chart1" height="70"></canvas>
+
+    <!-- Cartes de statistiques -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card bg-primary text-white shadow-sm p-3 animate__animated animate__fadeInUp">
+            <div class="card-body">
+                <h5 class="card-title">Administrateurs & Managers</h5>
+                <p class="fs-3 fw-bold">{{ $users }}</p>
+                <p class="mb-0"><i class="fas fa-user-tie"></i> Gestionnaires enregistrés</p>
             </div>
         </div>
     </div>
-    <!-- /.col-->
-    <div class="col-sm-6 col-lg-3">
-        <div class="card mb-4 text-white bg-warning">
-            <div class="card-body pb-0 d-flex justify-content-between align-items-start">
-                <div>
-                    <div class="fs-4 fw-semibold">{{ $clients }} <span class="fs-6 fw-normal"></div>
-                    <div>Clients</div>
-                </div>
-                <div class="dropdown">
-                    <button class="btn btn-transparent text-white p-0" type="button"
-                        data-coreui-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <svg class="icon">
-                            <use xlink:href="assets/icons/sprites/free.svg#cil-options">
-                            </use>
-                        </svg>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end"><a class="dropdown-item"
-                            href="#">Action</a><a class="dropdown-item" href="#">Another
-                            action</a><a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </div>
-            </div>
-            <div class="c-chart-wrapper mt-3" style="height:70px;">
-                <canvas class="chart" id="card-chart3" height="70"></canvas>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card bg-warning text-white shadow-sm p-3 animate__animated animate__fadeInUp">
+            <div class="card-body">
+                <h5 class="card-title">Liste des clients enregistrés</h5>
+                <p class="fs-3 fw-bold">{{ $clients }}</p>
+                <p class="mb-0"><i class="fas fa-users"></i> Nombre total de clients</p>
             </div>
         </div>
     </div>
-    <!-- /.col-->
-    <div class="col-sm-6 col-lg-3">
-        <div class="card mb-4 text-white bg-danger">
-            <div class="card-body pb-0 d-flex justify-content-between align-items-start">
-                <div>
-                    <div class="fs-4 fw-semibold">{{ $reservationsPendding }}</div>
-                    <div>Reservation en attente</div>
-                </div>
-                <div class="dropdown">
-                    <button class="btn btn-transparent text-white p-0" type="button"
-                        data-coreui-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <svg class="icon">
-                            <use xlink:href="assets/icons/sprites/free.svg#cil-options">
-                            </use>
-                        </svg>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end"><a class="dropdown-item"
-                            href="#">Action</a><a class="dropdown-item" href="#">Another
-                            action</a><a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </div>
-            </div>
-            <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
-                <canvas class="chart" id="card-chart4" height="70"></canvas>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card bg-danger text-white shadow-sm p-3 animate__animated animate__fadeInUp">
+            <div class="card-body">
+                <h5 class="card-title">Réservations en attente</h5>
+                <p class="fs-3 fw-bold">{{ $reservationsPendding }}</p>
+                <p class="mb-0"><i class="fas fa-clock"></i> Besoin de validation</p>
             </div>
         </div>
     </div>
-    <!-- /.col-->
-    <div class="col-sm-6 col-lg-3">
-        <div class="card mb-4 text-white bg-info">
-            <div class="card-body pb-0 d-flex justify-content-between align-items-start">
-                <div>
-                    <div class="fs-4 fw-semibold">{{ $reservations }}</div>
-                    <div>Reservations Validées</div>
-                </div>
-                <div class="dropdown">
-                    <button class="btn btn-transparent text-white p-0" type="button"
-                        data-coreui-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <svg class="icon">
-                            <use xlink:href="assets/icons/sprites/free.svg#cil-options">
-                            </use>
-                        </svg>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end"><a class="dropdown-item"
-                            href="#">Action</a><a class="dropdown-item" href="#">Another
-                            action</a><a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </div>
-            </div>
-            <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
-                <canvas class="chart" id="card-chart2" height="70"></canvas>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card bg-success text-white shadow-sm p-3 animate__animated animate__fadeInUp">
+            <div class="card-body">
+                <h5 class="card-title">Réservations Validées</h5>
+                <p class="fs-3 fw-bold">{{ $reservations }}</p>
+                <p class="mb-0"><i class="fas fa-check-circle"></i> Réservations confirmées</p>
             </div>
         </div>
     </div>
-    <!-- /.col-->
 </div>
+
 @endsection

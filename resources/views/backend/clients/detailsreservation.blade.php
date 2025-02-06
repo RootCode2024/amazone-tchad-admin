@@ -1,7 +1,7 @@
 @extends('backend.layouts.app')
 
 @section('head')
-<title>Détails de la Réservation - Amazone Tchad Admin</title>
+<title>Détails de la Réservation - {{ config('app.name', 'Laravel') }}</title>
 @endsection
 
 @section('breadcrum')

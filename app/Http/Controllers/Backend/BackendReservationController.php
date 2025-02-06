@@ -147,35 +147,17 @@ class BackendReservationController extends Controller
     /**
      * Récupère les clients qui ont reservés une voiture en JSON pour l'affichage dynamique
      */
-    public function fetchLocations(Request $request) 
+    public function fetchLocations(Request $request)
     {
-        try {
-            $perPage = (int) $request->get('per_page', 5);
-            $currentPage = (int) $request->get('page', 1);
+        $perPage = $request->get('per_page', 5);
+        $currentPage = $request->get('page', 1);
     
-            // Charger les locations avec les infos nécessaires
-            $reservations = CarLocation::with([
-                    'client:id,firstname,lastname'
-                ])
-                ->orderBy('created_at', 'desc')
-                ->paginate($perPage, ['id', 'age', 'client_id', 'created_at', 'status'], 'page', $currentPage);
+        $location = CarLocation::with(['client', 'country'])
+                        ->orderBy('created_at', 'desc')
+                        ->paginate($perPage, ['*'], 'page', $currentPage);
     
-            return response()->json([
-                'success' => true,
-                'message' => 'Liste des locations de voitures',
-                'data' => $reservations->toArray()
-            ], 200);
-    
-        } catch (\Exception $e) {
-            // Retourne une erreur JSON détaillée pour le front-end
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la récupération des locations',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return $location;
     }
-    
 
     /**
      * Supprime une Reservation de voiture

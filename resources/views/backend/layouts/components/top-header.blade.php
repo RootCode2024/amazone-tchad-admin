@@ -8,9 +8,9 @@
 
         <a class="header-brand d-md-none" href="#">
             <div width="118" height="46" alt="CoreUI Logo">
-                
-            <img src="{{ asset('assets/img/logo.png') }}" width="150" height="auto" />
-            </div></a>
+                <img src="{{ asset('assets/img/logo.png') }}" width="150" height="auto" />
+            </div>
+        </a>
         <ul class="header-nav d-none d-md-flex">
             <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Tableau de Bord</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ route('users') }}">Utilisateurs</a></li>
@@ -38,10 +38,6 @@
 
                     <div class="dropdown-divider"></div>
 
-                    <a class="dropdown-item" href="#">
-                        <x-coreui-icon class="icon me-2" icon="cil-lock-locked" />
-                        Bloquer le compte
-                    </a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
 
