@@ -37,8 +37,8 @@ class ReservationController extends Controller
         $request->validate([
             'lastname' => 'required|string|max:255',
             'firstname' => 'required|string|max:255',
-            'email' => 'required|email|unique:clients,email',
-            'phone' => 'required|string|max:20|unique:clients,phone',
+            'email' => 'required|email',
+            'phone' => 'required|string|max:20',
             'origin' => 'required|exists:airports,id',
             'destination' => 'required|exists:airports,id',
             'departure' => 'required|date',
@@ -47,8 +47,17 @@ class ReservationController extends Controller
             'flight_type' => 'required|in:one-way,round-trip,multi-destination',
             'flight_class' => 'required|in:economy,premium,business',
         ]);
-    
-        $client = $this->reservationService->createClient($request->all(), 'flight');
+
+        
+        $client = Client::where('email', $request->email)->first();
+        if (!$client) {
+            $client = $this->reservationService->createClient($request->all(), 'flight');
+        }else
+        {
+            $client->type_of_reservation = 'flight';
+            $client->save();            
+        }
+        
         $reservation = $this->reservationService->createFlight($client, $request->all());
     
         $this->reservationService->sendReservationEmail($reservation);

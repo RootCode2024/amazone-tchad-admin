@@ -70,11 +70,11 @@ class ReservationService
         }
     }
 
-    
+
     public function sendReservationStatusChange($reservation)
     {
         try {
-            Mail::to(env('APP_EMAIL'))->send(new SendReservationStatusEmail($reservation));
+            Mail::to($reservation->client->email)->send(new SendReservationStatusEmail($reservation));
         } catch (\Exception $e) {
             Log::error("Erreur d'envoi d'email : " . $e->getMessage());
         }
