@@ -19,62 +19,62 @@
 @endsection
 
 @section('content')
-<div class="container mt-5" x-data="clientTable">
-    <h2 class="fw-bold text-primary mb-4">Clients</h2>
+<div class="container mt-2 bg-white p-4" x-data="clientTable">
+    <h2 class="fw-bold text-primary mb-4 text-center">Liste des clients</h2>
 
-    <div class="card shadow-lg">
-        <div class="card-header bg-dark text-white">
+    <div class="card bg-white">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Liste des Clients</h5>
         </div>
         <div class="card-body p-0">
-            <table class="table table-hover table-responsive-lg text-center mb-0">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Nom Complet</th>
-                        <th>Email</th>
-                        <th>Téléphone</th>
-                        <th>Type de réservation</th>
-                        <th>Demandé le</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <template x-if="isLoading">
+            <div class="table-responsive">
+                <table class="table table-hover text-center mb-0">
+                    <thead class="table-dark">
                         <tr>
-                            <td colspan="7" class="text-center py-3">
-                                <span class="spinner-border spinner-border-sm"></span> Chargement...
-                            </td>
+                            <th>#</th>
+                            <th>Nom Complet</th>
+                            <th>Email</th>
+                            <th>Téléphone</th>
+                            <th>Type de réservation</th>
+                            <th>Demandé le</th>
+                            <th>Actions</th>
                         </tr>
-                    </template>
+                    </thead>
+                    <tbody>
+                        <template x-if="isLoading">
+                            <tr>
+                                <td colspan="7" class="text-center py-3">
+                                    <span class="spinner-border spinner-border-sm"></span> Chargement...
+                                </td>
+                            </tr>
+                        </template>
 
-                    <template x-for="(client, index) in clients.data" :key="client?.id">
-                        <tr>
-                            <td x-text="index + 1"></td>
-                            <td class="fw-bold">
-                                <span x-text="client.firstname"></span>
-                                <span x-text="client.lastname"></span>
-                            </td>
-                            <td x-text="client.email"></td>
-                            <td x-text="client.phone"></td>
-                            <td>
-                                <span class="badge bg-primary" 
-                                      x-text="translateReservationType(client.type_of_reservation)">
-                                </span>
-                            </td>
-                            <td x-text="formatDate(client.created_at)"></td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-danger mx-1" @click="supprimerClient(client.id)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                                <a :href="`${appUrl}/admin/client/${client.id}`" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    </template>
-                </tbody>
-            </table>
+                        <template x-for="(client, index) in clients.data" :key="client?.id">
+                            <tr>
+                                <td x-text="index + 1"></td>
+                                <td class="fw-bold">
+                                    <span x-text="client.firstname"></span>
+                                    <span x-text="client.lastname"></span>
+                                </td>
+                                <td x-text="client.email"></td>
+                                <td x-text="client.phone"></td>
+                                <td>
+                                    <span class="badge bg-primary" x-text="translateReservationType(client.type_of_reservation)"></span>
+                                </td>
+                                <td x-text="formatDate(client.created_at)"></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-danger mx-1" @click="supprimerClient(client.id)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <a :href="`${appUrl}/admin/client/${client.id}`" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -102,20 +102,18 @@
 
 <style>
     .card {
-        border-radius: 12px;
-        transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+        
     }
 
     .card:hover {
         transform: scale(1.02);
-        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     .badge {
         padding: 6px 12px;
         font-size: 14px;
         font-weight: bold;
-        border-radius: 8px;
+        border-radius: 0px;
     }
 
     .table th, .table td {
@@ -135,6 +133,22 @@
     .btn-outline-danger:hover {
         background-color: #dc3545;
         color: white;
+    }
+
+    @media (max-width: 768px) {
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .table th, .table td {
+            white-space: nowrap;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
     }
 </style>
 

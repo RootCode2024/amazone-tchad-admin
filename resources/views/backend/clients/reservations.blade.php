@@ -20,193 +20,86 @@
 @endsection
 
 @section('content')
-    <div x-data="reservationTable">
-        <!-- Sélection du type de réservation -->
-        <select name="typeReservation" id="typeReservation" x-model="typeReservationModel" @change="updateTable()">
+<div x-data="reservationTable" class="container mt-2">
+<h2 class="fw-bold text-primary mb-4 text-center">Liste des reservations</h2>
+    <!-- Sélection du type de réservation -->
+    <div class="mb-4">
+        <label for="typeReservation" class="fw-bold">Type de réservation :</label>
+        <select name="typeReservation" id="typeReservation" x-model="typeReservationModel" @change="updateTable()" class="form-select w-50">
             <option value="vols">Vols</option>
             <option value="hotels">Hôtels</option>
             <option value="locations">Locations de voitures</option>
         </select>
-
-        <div class="container mt-5">
-            <h2 class="mb-4">Réservations (<span x-text="typeReservationModel"></span>)</h2>
-
-            <!-- TABLEAU DES VOLS -->
-            <template x-if="typeReservationModel === 'vols'">
-                <div>
-                    <table class="table table-striped table-hover shadow-sm">
-                        <thead class="table-dark text-center">
-                            <tr>
-                                <th>#</th>
-                                <th>Détails du Vol</th>
-                                <th>Client</th>
-                                <th>Téléphone</th>
-                                <th>Date de la demande</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="(reservation, index) in reservations.data" :key="reservation.id">
-                                <tr class="align-middle">
-                                    <td class="text-center fw-bold" x-text="index + 1"></td>
-                                    <td>
-                                        <div class="d-flex flex-column">
-                                            <span class="fw-bold text-primary">
-                                                <i class="fas fa-plane-departure"></i>
-                                                <span x-text="translateTypeFlight(reservation.flight_type)"></span>
-                                            </span>
-                                            <hr class="my-1">
-                                            <span class="fw-bold text-success">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <span x-text="reservation.countries?.country ?? ''"></span> →
-                                                <span x-text="reservation.destinations?.country ?? ''"></span>
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="fw-bold" x-text="reservation.client?.firstname ?? ''"></span>
-                                        <span x-text="reservation.client?.lastname ?? ''"></span>
-                                    </td>
-                                    <td x-text="reservation.client?.phone ?? ''"></td>
-                                    <td x-text="formatDate(reservation.created_at)"></td>
-
-                                    <!-- Gestion du statut avec SweetAlert2 -->
-                                    <td class="text-center">
-                                        <div x-data="statusManager(reservation.id, 'Flight', reservation.status)">
-                                            <button @click="updateStatus()" 
-                                                    class="btn btn-sm d-flex align-items-center justify-content-center" 
-                                                    :class="status === 'pending' ? 'btn-warning' : (status === 'validated' ? 'btn-success' : 'btn-danger')"
-                                                    :disabled="isLoading">
-                                                <span x-show="!isLoading" x-text="translateStatus(status)"></span>
-                                                <span x-show="isLoading">
-                                                    <i class="fas fa-spinner fa-spin"></i>
-                                                </span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                                                    
-                                    <td class="text-center">
-                                        <button class="btn btn-outline-primary btn-sm" @click="voirReservation(reservation.client_id, reservation.id)">
-                                            <i class="fas fa-eye"></i> Voir
-                                        </button>
-                                        <button class="btn btn-outline-danger btn-sm" @click="supprimerReservation('flight', reservation.id)">
-                                            <i class="fas fa-trash"></i> Supprimer
-                                        </button>
-                                    </td>                                    
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </template>
-
-            <!-- TABLEAU POUR LES HÔTELS -->
-            <template x-if="typeReservationModel === 'hotels'">
-                <div>
-                    <table class="table table-bordered">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>#</th>
-                                <th>ID Client</th>
-                                <th>Chambre</th>
-                                <th>Date de la demande</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="reservation in reservations.data" :key="reservation.id">
-                                <tr>
-                                    <td x-text="reservation.id"></td>
-                                    <td x-text="reservation.client_id"></td>
-                                    <td x-text="reservation.number_of_room"></td>
-                                    <td x-text="formatDate(reservation.created_at)"></td>
-
-                                    <!-- Gestion du statut avec SweetAlert2 -->
-                                    <td class="text-center">
-                                        <div x-data="statusManager(reservation.id, 'Hotel', reservation.status)">
-                                            <button @click="updateStatus()" 
-                                                    class="btn btn-sm d-flex align-items-center justify-content-center" 
-                                                    :class="status === 'pending' ? 'btn-warning' : (status === 'validated' ? 'btn-success' : 'btn-danger')"
-                                                    :disabled="isLoading">
-                                                <span x-show="!isLoading" x-text="translateStatus(status)"></span>
-                                                <span x-show="isLoading">
-                                                    <i class="fas fa-spinner fa-spin"></i>
-                                                </span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    
-                                    <td class="text-center">
-                                        <button class="btn btn-outline-primary btn-sm">
-                                            <i class="fas fa-eye"></i> Voir
-                                        </button>
-                                        <button class="btn btn-outline-danger btn-sm">
-                                            <i class="fas fa-trash"></i> Supprimer
-                                        </button>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </template>
-
-            <!-- TABLEAU POUR LES LOCATIONS DE VOITURES -->
-            <template x-if="typeReservationModel === 'locations'">
-                <div>
-                    <table class="table table-bordered">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>#</th>
-                                <th>Client</th>
-                                <th>Age</th>
-                                <th>Date de la demande</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="reservation in reservations.data" :key="reservation.id">
-                                <tr>
-                                    <td x-text="reservation.id"></td>
-                                    <td x-text="reservation.client?.firstname + ' ' + reservation.client?.lastname"></td>
-                                    <td x-text="reservation.age"></td>
-                                    <td x-text="formatDate(reservation.created_at)"></td>
-
-                                    <!-- Gestion du statut avec SweetAlert2 -->
-                                    <td class="text-center">
-                                        <div x-data="statusManager(reservation.id, 'CarLocation', reservation.status)">
-                                            <button @click="updateStatus()" 
-                                                    class="btn btn-sm d-flex align-items-center justify-content-center" 
-                                                    :class="status === 'pending' ? 'btn-warning' : (status === 'validated' ? 'btn-success' : 'btn-danger')"
-                                                    :disabled="isLoading">
-                                                <span x-show="!isLoading" x-text="translateStatus(status)"></span>
-                                                <span x-show="isLoading">
-                                                    <i class="fas fa-spinner fa-spin"></i>
-                                                </span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                    
-                                    <td class="text-center">
-                                        <button class="btn btn-outline-primary btn-sm">
-                                            <i class="fas fa-eye"></i> Voir
-                                        </button>
-                                        <button class="btn btn-outline-danger btn-sm">
-                                            <i class="fas fa-trash"></i> Supprimer
-                                        </button>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </template>
-
-        </div>
     </div>
+
+    <div class="container bg-white p-4">
+        <h2 class="mb-4 text-primary">Réservations (<span x-text="typeReservationModel"></span>)</h2>
+
+        <!-- TABLEAU DES VOLS -->
+        <template x-if="typeReservationModel === 'vols'">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped text-center align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Détails du Vol</th>
+                            <th>Client</th>
+                            <th>Téléphone</th>
+                            <th>Date de la demande</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="(reservation, index) in reservations.data" :key="reservation.id">
+                            <tr>
+                                <td class="fw-bold" x-text="index + 1"></td>
+                                <td>
+                                    <div class="d-flex flex-column text-start">
+                                        <span class="fw-bold text-primary">
+                                            <i class="fas fa-plane-departure"></i>
+                                            <span x-text="translateTypeFlight(reservation.flight_type)"></span>
+                                        </span>
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span x-text="reservation.countries?.country ?? ''"></span> →
+                                            <span x-text="reservation.destinations?.country ?? ''"></span>
+                                        </small>
+                                    </div>
+                                </td>
+                                <td x-text="reservation.client?.firstname + ' ' + reservation.client?.lastname"></td>
+                                <td x-text="reservation.client?.phone ?? ''"></td>
+                                <td x-text="formatDate(reservation.created_at)"></td>
+                                <td>
+                                    <div x-data="statusManager(reservation.id, 'Flight', reservation.status)">
+                                        <button @click="updateStatus()" 
+                                                class="btn btn-sm d-flex align-items-center justify-content-center" 
+                                                :class="status === 'pending' ? 'btn-warning' : (status === 'validated' ? 'btn-success' : 'btn-danger')"
+                                                :disabled="isLoading">
+                                            <span x-show="!isLoading" x-text="translateStatus(status)"></span>
+                                            <span x-show="isLoading">
+                                                <i class="fas fa-spinner fa-spin"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-outline-primary btn-sm me-2" @click="voirReservation(reservation.client_id, reservation.id)">
+                                        <i class="fas fa-eye"></i> Voir
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm" @click="supprimerReservation('flight', reservation.id)">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </template>
+    </div>
+</div>
+
     <script>
         
         document.addEventListener('alpine:init', () => {

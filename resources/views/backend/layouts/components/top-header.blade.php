@@ -1,4 +1,4 @@
-<header class="header header-sticky mb-4">
+<header class="header header-sticky">
     <div class="container-fluid">
         <button class="header-toggler px-md-0 me-md-3" type="button"
             onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()">
@@ -11,19 +11,18 @@
                 <img src="{{ asset('assets/img/logo.png') }}" width="150" height="auto" />
             </div>
         </a>
-        <ul class="header-nav d-none d-md-flex">
-            <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Tableau de Bord</a></li>
-            <li class="nav-item"><a class="nav-link" href="{{ route('users') }}">Utilisateurs</a></li>
-        </ul>
 
         <ul class="header-nav ms-3">
             <li class="nav-item dropdown">
                 <a class="nav-link py-0" data-coreui-toggle="dropdown" href="#"
                     role="button" aria-haspopup="true" aria-expanded="false">
                     <div class="avatar avatar-md">
-                        <img class="avatar-img" src="{{ asset('assets/img/logo.png') }}"
+                        <!-- <img class="avatar-img"  src="{{ asset('assets/img/logo.png') }}"
+                            alt="{{ auth()->User()->email }}"> -->
+                            <img class="avatar-img"  src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
                             alt="{{ auth()->User()->email }}">
                     </div>
+                    <span>{{ auth()->User()->name }}</span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end pt-0">
                     <div class="dropdown-header bg-light py-2">

@@ -4473,7 +4473,7 @@ textarea.form-control-lg {
   border-bottom: var(--cui-card-border-width) solid var(--cui-card-border-color);
 }
 .card-header:first-child {
-  border-radius: var(--cui-card-inner-border-radius) var(--cui-card-inner-border-radius) 0 0;
+  border-radius: 0;
 }
 
 .card-footer {

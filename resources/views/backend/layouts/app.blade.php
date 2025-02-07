@@ -14,6 +14,36 @@
     
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+    /* Ajustement pour petits écrans */
+        @media (max-width: 768px) {
+            .wrapper {
+                padding: 0 2px;
+            }
+
+            .body {
+                padding: 1  px 0;
+            }
+
+            .container-lg {
+                padding: 0 1px;
+            }
+        }
+
+        /* Ajustement pour tablettes */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .container-lg {
+                max-width: 90%;
+            }
+        }
+
+        /* Optimisation pour grands écrans */
+        @media (min-width: 1025px) {
+            .container-lg {
+                max-width: 80%;
+            }
+        }
+    </style>
 
     <!-- Scripts -->
     @vite(['resources/sass/style.scss'])
@@ -28,17 +58,20 @@
     @include('backend.layouts.components.sidebar')
 
     <div class="wrapper d-flex flex-column min-vh-100 bg-light">
-        @include('backend.layouts.components.top-header')
-        <div class="body flex-grow-1 px-3">
-            <div class="container-lg">
+    @include('backend.layouts.components.top-header')
 
-               @include('backend.layouts.components.response')
+     <div class="body flex-grow-1 ">
+        <div class="container-lg">
+            @include('backend.layouts.components.response')
 
+            <div class="content-wrapper pb-4">
                 @yield('content')
             </div>
         </div>
-      @include('backend.layouts.components.footer')
     </div>
+
+    @include('backend.layouts.components.footer')
+</div>
 
     @vite(['resources/js/app.js'])
 </body>
