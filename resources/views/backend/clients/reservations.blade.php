@@ -2,6 +2,7 @@
 
 @section('head')
     <title>Réservations - Amazone Tchad Admin</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection
 
 @section('breadcrumb')
@@ -92,7 +93,7 @@
 
                                     <td class="text-center">
                                         <div x-data="statusManager(reservation.id, 'flight', reservation.status)">
-                                            <button @click="updateStatus(reservation.id)" 
+                                            <button @click="openStatusModal()" 
                                                     class="btn btn-sm" 
                                                     :class="status === 'pending' ? 'btn-warning' : (status === 'validated' ? 'btn-success' : 'btn-danger')"
                                                     >
@@ -163,7 +164,7 @@
                                     <td x-text="formatDate(reservation.created_at)"></td>
                                     <td class="text-center">
                                         <div x-data="statusManager(reservation.id, 'hotel', reservation.status)">
-                                            <button @click="updateStatus(reservation.id)" 
+                                            <button @click="openStatusModal()" 
                                                     class="btn btn-sm" 
                                                     :class="status === 'pending' ? 'btn-warning' : (status === 'validated' ? 'btn-success' : 'btn-danger')"
                                                     >
@@ -423,33 +424,148 @@
         
             Alpine.data('statusManager', (id, type, initialStatus) => ({
                 status: initialStatus,
-        
-                updateStatus() {
-                    const newStatus = this.status === 'pending' ? 'validated' :
-                                      (this.status === 'validated' ? 'rejected' : 'pending');
-        
-                    let endpoint = `${window.location.origin}/admin/reservations/${id}/update-status-${type.toLowerCase()}`;
-        
-                    axios.post(endpoint, { status: newStatus }, {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                openStatusModal() {
+                    console.log("Ouverture de la modal pour la réservation", type);
+                    // Ouvrir la modal avec SweetAlert2
+                    Swal.fire({
+                        title: 'Choisissez un statut',
+                        input: 'radio',
+                        inputOptions: {
+                            'pending': 'En attente',
+                            'validated': 'Validé',
+                            'rejected': 'Rejeté'
+                        },
+                        inputValidator: (value) => {
+                            if (!value) {
+                                return 'Vous devez choisir un statut !';
+                            }
+                        },
+                        showCancelButton: true,
+                        confirmButtonText: 'Confirmer',
+                        cancelButtonText: 'Annuler',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.status = result.value; // Mettre à jour le statut selon la sélection
+                            this.handleStatusChange(id, result.value, type); // Afficher le bon formulaire
                         }
+                    });
+                },
+
+                handleStatusChange(id, status, type) {
+                    if (status === 'validated') {
+                        this.showValidatedForm(id, type); // Affiche le formulaire pour validé
+                    } else if (status === 'rejected') {
+                        this.showRejectedForm(id, type); // Affiche le formulaire pour rejeté
+                    } else {
+                        this.updatePending(id, status, type); // Mettre à jour le statut
+                        Swal.fire('Réservation mise en attente', 'Les informations ont été mises à jour avec succès', 'success');
+                    }
+                },
+
+                updatePending(reservationId, status, type) {
+                    axios.post(`/admin/reservations/${reservationId}/update-pending-${type}`, {
+                        status: status
                     })
                     .then(response => {
-                        if (response.data.success) {
-                            this.status = newStatus;
-                            alert('Statut mis à jour avec succès !');
-                        } else {
-                            alert('Erreur lors de la mise à jour du statut.');
-                        }
+                        // Afficher un message de succès si la mise à jour est réussie
+                        console.log('Réservation mise à jour:', response.data);
                     })
                     .catch(error => {
-                        console.error('Erreur réseau ou serveur:', error);
-                        alert('Une erreur est survenue.');
+                        // En cas d'erreur, afficher un message d'erreur
+                        console.error('Erreur lors de la mise à jour du statut:', error);
+                        Swal.fire('Erreur', 'Une erreur est survenue lors de la mise à jour.', 'error');
+                    });
+                },
+
+
+                showValidatedForm(reservationId, type) {
+                    Swal.fire({
+                        title: 'Formulaire Validé',
+                        html: `
+                            <label for="price">Prix:</label>
+                            <input type="number" id="price" class="swal2-input" placeholder="Prix">
+                            <label for="notes">Notes:</label>
+                            <textarea id="notes" class="swal2-input" placeholder="Notes"></textarea>
+                        `,
+                        confirmButtonText: 'Envoyer',
+                        focusConfirm: false,
+                        preConfirm: () => {
+                            const price = document.getElementById('price').value;
+                            const notes = document.getElementById('notes').value;
+
+                            // Validation des champs
+                            if (!price || !notes) {
+                                Swal.showValidationMessage('Veuillez remplir tous les champs');
+                                return false;
+                            }
+
+                            // Envoi des données pour mettre à jour la réservation validée
+                            this.updateValidatedReservation(reservationId, type, price, notes);
+                        }
+                    });
+                },
+
+                // Fonction pour envoyer la mise à jour de la réservation validée
+                updateValidatedReservation(reservationId, type, price, notes) {
+                    axios.post(`/admin/reservations/${reservationId}/update-validated-${type}`, {
+                        finded_price: price,
+                        notes: notes,
+                        status: 'validated',  // Le statut doit être "validé"
+                    })
+                    .then(response => {
+                        Swal.fire('Réservation mise à jour', 'La réservation a été validée avec succès.', 'success');
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        Swal.fire('Erreur', 'Une erreur est survenue lors de la mise à jour.', 'error');
+                    });
+                },
+
+
+                showRejectedForm(reservationId, type) {
+                    Swal.fire({
+                        title: 'Formulaire Rejeté',
+                        html: `
+                            <label for="finded_price">Prix trouvé:</label>
+                            <input type="number" id="finded_price" class="swal2-input" placeholder="Prix trouvé">
+                            <label for="finded_departure_date">Date de départ:</label>
+                            <input type="date" id="finded_departure_date" class="swal2-input" placeholder="Date de départ">
+                            <label for="finded_return_date">Date de retour:</label>
+                            <input type="date" id="finded_return_date" class="swal2-input" placeholder="Date de retour">
+                            <label for="notes">Notes:</label>
+                            <textarea id="notes" class="swal2-input" placeholder="Notes"></textarea>
+                        `,
+                        confirmButtonText: 'Envoyer',
+                        focusConfirm: false,
+                        preConfirm: () => {
+                            const finded_price = document.getElementById('finded_price').value;
+                            const finded_departure_date = document.getElementById('finded_departure_date').value;
+                            const finded_return_date = document.getElementById('finded_return_date').value;
+                            const notes = document.getElementById('notes').value;
+
+                            // Envoie les données au serveur pour mettre à jour la réservation
+                            axios.post(`/admin/reservations/${reservationId}/update-rejected-${type}`, {
+                                finded_price,
+                                finded_departure_date,
+                                finded_return_date,
+                                notes
+                            })
+                            .then(response => {
+                                if (response.data.success) {
+                                    Swal.fire('Réservation rejetée', 'Les informations ont été mises à jour avec succès', 'success');
+                                } else {
+                                    Swal.fire('Erreur', response.data.error || 'Une erreur est survenue lors de la mise à jour.', 'error');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Erreur lors de la mise à jour:', error);
+                                Swal.fire('Erreur', 'Une erreur est survenue lors de la mise à jour.', 'error');
+                            });
+                        }
                     });
                 }
             }));
+
         });
     </script>
         

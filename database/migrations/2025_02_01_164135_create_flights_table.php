@@ -21,6 +21,10 @@ return new class extends Migration
             $table->foreignIdFor(Airport::class, 'destination')->references('id')->on('airports')->cascadeOnDelete();
             $table->date('departure_date');
             $table->date('return_date')->nullable();
+            $table->unsignedBigInteger('finded_price')->nullable();
+            $table->date('finded_departure_date')->nullable();
+            $table->date('finded_return_date')->nullable();
+            $table->text('notes')->nullable();
             $table->integer('passengers');
             $table->enum('flight_class', ['economy', 'premium', 'business'])->default('economy');
             $table->enum('status', ['pending', 'validated', 'rejected'])->default('pending');

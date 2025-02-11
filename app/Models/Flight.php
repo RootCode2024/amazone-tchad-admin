@@ -18,6 +18,10 @@ class Flight extends Model
         'flight_class',
         'flight_type',
         'status',
+        'finded_price',
+        'finded_departure_date',
+        'finded_return_date',
+        'notes',
     ];
 
     public function client()

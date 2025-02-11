@@ -41,7 +41,15 @@ Route::prefix('/admin/reservations')->middleware('auth')->group(function () {
     Route::get('/fetchLocations', [BackendReservationController::class, 'fetchReservations'])->name('reservations.fetchLocations');
     
     // Routes pour mis à jour du status des reservations
-    Route::post('/{id}/update-status-flight', [ReservationController::class, 'updateStatusFlight']);
+    // Route::post('/{id}/update-status-flight', [ReservationController::class, 'updateStatusFlight']);
+    
+    Route::post('/{id}/update-rejected-{type}', [ReservationController::class, 'updateRejected'])->name('reservations.update.rejected');
+    
+    Route::post('/{id}/update-validated-{type}', [ReservationController::class, 'updateValidated'])->name('reservations.update.validated');
+
+    Route::post('/{id}/update-pending-{type}', [ReservationController::class, 'updatePending'])->name('reservations.update.pending');
+
+
     Route::post('/{id}/update-status-hotel', [ReservationController::class, 'updateStatusHotel']);
     Route::post('/{id}/update-status-car-location', [ReservationController::class, 'updateStatusCarLocation']);
     

@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use DateTime;
-use App\Models\Hotel;
+use App\Mail\SendReservationStatusEmail;
+use App\Models\CarLocation;
 use App\Models\Client;
 use App\Models\Flight;
-use App\Models\CarLocation;
-use Illuminate\Http\Request;
+use App\Models\Hotel;
 use App\Services\ReservationService;
-use App\Mail\SendReservationStatusEmail;
+use DateTime;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 
 class ReservationController extends Controller
@@ -167,5 +168,115 @@ class ReservationController extends Controller
         $this->reservationService->sendReservationStatusChange($reservation);
 
         return response()->json(['success' => true, 'newStatus' => $reservation->status]);
+    }
+
+
+    public function updateRejected(Request $request, $id, $type)
+    {
+        try {
+            // Validation des données
+            $validatedData = $request->validate([
+                'finded_price' => 'required|numeric',
+                'finded_departure_date' => 'required|date',
+                'finded_return_date' => 'nullable|date',
+                'notes' => 'nullable|string', // notes est optionnel
+            ]);
+
+            // Trouver la réservation existante par ID
+            if($type == 'flight')
+            {
+                $reservation = Flight::find($id);
+
+                // Mise à jour des champs
+                $reservation->finded_departure_date = $validatedData['finded_departure_date'];
+                $reservation->finded_return_date = $validatedData['finded_return_date'];
+
+            }elseif($type == 'hotel')
+            {
+                $reservation = Hotel::find($id);
+
+                // Mise à jour des champs
+                $reservation->finded_arrival_date = $validatedData['finded_departure_date'];
+                $reservation->finded_return_date = $validatedData['finded_return_date'];
+                
+            }else
+            {
+                $reservation = CarLocation::find($id);
+
+                // Mise à jour des champs
+                $reservation->finded_started_date = $validatedData['finded_departure_date'];
+                $reservation->finded_ended_date = $validatedData['finded_return_date'];
+            }
+
+            
+
+            $reservation->finded_price = $validatedData['finded_price'];
+            $reservation->notes = $validatedData['notes'];
+            $reservation->status = 'rejected';
+
+            // Sauvegarde des modifications
+            $reservation->save();
+
+            // Retourner une réponse de succès
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            // En cas d'erreur, loguer et retourner une erreur
+            Log::error('Erreur lors de la mise à jour de la réservation rejetée: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    public function updateValidated($id, $type, Request $request) {
+        
+        
+        if($type == 'flight')
+        {
+            $reservation = Flight::find($id);
+        }elseif($type == 'hotel')
+        {
+            $reservation = Hotel::find($id);
+        }else
+        {
+            $reservation = CarLocation::find($id);
+        }
+    
+        if (!$reservation) {
+            return response()->json(['error' => 'Réservation non trouvée.'], 404);
+        }
+    
+        // Mettre à jour les champs de la réservation
+        $reservation->finded_price = $request->finded_price;
+        $reservation->notes = $request->notes;
+        $reservation->status = 'validated';
+    
+        $reservation->save();
+    
+        return response()->json(['success' => 'Réservation validée avec succès.']);
+    }
+    
+    public function updatePending($id, $type, Request $request)
+    {
+
+        if($type == 'flight')
+        {
+            $reservation = Flight::find($id);
+        }elseif($type == 'hotel')
+        {
+            $reservation = Hotel::find($id);
+        }else
+        {
+            $reservation = CarLocation::find($id);
+        }
+    
+        if (!$reservation) {
+            return response()->json(['error' => 'Réservation non trouvée.'], 404);
+        }
+    
+        // Mettre à jour le statut de la réservation
+        $reservation->status = $request->status;
+    
+        $reservation->save();
+    
+        return response()->json(['success' => 'Statut de la réservation mis à jour.']);
     }
 }

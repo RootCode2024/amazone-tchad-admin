@@ -19,6 +19,10 @@ return new class extends Migration
             $table->foreignIdFor(Airport::class, 'place_of_location')->references('id')->on('airports')->cascadeOnDelete();
             $table->date('started_date');
             $table->date('ended_date');
+            $table->date('finded_started_date')->nullable();
+            $table->date('finded_ended_date')->nullable();
+            $table->unsignedBigInteger('finded_price')->nullable();
+            $table->text('notes')->nullable();
             $table->unsignedSmallInteger('age');
             $table->enum('status', ['pending', 'validated', 'rejected'])->default('pending');
             $table->timestamps();
